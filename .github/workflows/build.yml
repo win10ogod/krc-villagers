@@ -180,16 +180,8 @@ jobs:
           python3 scripts/release.py --verify-only
           if [[ "$UPDATED" == 'true' ]]; then
             gh auth setup-git
-            remote_sha=$(git ls-remote origin refs/heads/main | cut -f1)
-            if [[ "$remote_sha" != "$GITHUB_SHA" ]]; then
-              echo 'main changed while updates were being tested; the next check will retry on the new source.' >&2
-              exit 1
-            fi
-            git config user.name 'github-actions[bot]'
-            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git add dependencies.lock.json gradle.properties
-            git commit -m 'Update tested mod dependencies'
-            git push origin HEAD:main
+            python3 scripts/commit-updates.py
+            exit 0
           elif ! git diff --exit-code -- dependencies.lock.json gradle.properties; then
             echo 'Unexpected candidate changes in a normal build' >&2
             exit 1
