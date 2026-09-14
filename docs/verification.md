@@ -28,7 +28,7 @@
 | 多人權限邏輯 | 兩個伺服器玩家物件分別操作：非招募者、錯誤視窗及超距離封包拒絕；招募者操作成功。 |
 | 原版生活 | 無戰鬥的自由生活模式恢復原版 Brain；駐守模式取得行為控制。 |
 
-這些測試共 **21 項**。本次執行結果收錄在 [測試結果摘要](test-results.md)。完整伺服器日誌保留於本機 `evidence/gametest.log` 及已交付的完整專案壓縮包，不納入 Git 倉庫。
+這些測試共 **21 項**。初始執行結果收錄在 [測試結果摘要](test-results.md)。初始伺服器日誌保留於本機 `evidence/gametest.log`；後續自動建置的日誌由 Actions 的 `diagnostics` artifact 提供，不納入 Git 倉庫或專案原始碼 ZIP。
 
 ## 實機與畫面
 
@@ -54,7 +54,9 @@
 | Odin 自動時停 | [12-odin-time-stop.png](../evidence/12-odin-time-stop.png) |
 | 解約恢復村民 | [13-released-villager.png](../evidence/13-released-villager.png) |
 
-客戶端執行結果收錄在 [測試結果摘要](test-results.md)，成功標記為 `KRC_VILLAGERS_LIVE_OK`。完整日誌保留於本機 `evidence/client-live.log` 及已交付的完整專案壓縮包，不納入 Git 倉庫。截圖顯示外觀，技能開始、狀態清理與物品數量另有狀態斷言；時停亦檢查客戶端的 TimeClock 暫停狀態，以及解約後的客戶端恢復狀態。
+客戶端執行結果收錄在 [測試結果摘要](test-results.md)，成功標記為 `KRC_VILLAGERS_LIVE_OK`。完整日誌保留於本機 `evidence/client-live.log`，不納入 Git 倉庫或專案原始碼 ZIP。截圖顯示外觀，技能開始、狀態清理與物品數量另有狀態斷言；時停亦檢查客戶端的 TimeClock 暫停狀態，以及解約後的客戶端恢復狀態。
+
+以上圖形客戶端證據使用 1.0.0 初始依賴組合。依賴自動更新的發布條件為編譯及全部伺服器 GameTest 通過，不代表逐版重跑了圖形客戶端或完整模組包遊玩。
 
 ## 版本相容處理
 

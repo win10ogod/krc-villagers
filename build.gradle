@@ -8,6 +8,8 @@ base { archivesName = 'krc-villagers' }
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 java.withSourcesJar()
 repositories { mavenCentral() }
+def dependencyLock = new groovy.json.JsonSlurper().parse(file('dependencies.lock.json'))
+def dependencyVersions = dependencyLock.files.collectEntries { [(it.modid): it.version] }
 sourceSets {
     gametest { compileClasspath += sourceSets.main.output; runtimeClasspath += sourceSets.main.output }
 }
@@ -42,8 +44,7 @@ neoForge {
     }
 }
 dependencies {
-    implementation files('kamenridercraft-1.1.4.jar', 'generic_henshin-cf8875273.jar')
-    implementation fileTree('libs') { include '*.jar' }
+    implementation files(dependencyLock.files.collect { it.path })
 }
 tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
 tasks.register('verifyDependencies') {
@@ -69,7 +70,10 @@ tasks.named('jar', Jar) { from('LICENSE') }
 tasks.named('sourcesJar', Jar) { from('LICENSE') }
 tasks.named('processResources', ProcessResources) {
     inputs.property 'version', project.version
-    filesMatching('META-INF/neoforge.mods.toml') { expand version: project.version }
+    inputs.property 'dependencyVersions', dependencyVersions
+    filesMatching('META-INF/neoforge.mods.toml') {
+        expand version: project.version, deps: dependencyVersions
+    }
 }
 tasks.named('runGameTestServer') {
     doFirst { file('run-gametest/logs').mkdirs(); file('run-gametest/logs/latest.log').text = '' }

@@ -10,9 +10,9 @@
 
 ## 安裝
 
-適用 **Minecraft 1.21.1、NeoForge 21.1.244、Java 21**。將 `krc-villagers-1.0.0.jar` 放進遊戲實例的 `mods` 資料夾；多人遊戲的伺服器和每位玩家都要安裝。
+適用 **Minecraft 1.21.1、NeoForge 21.1.244、Java 21**。從 [GitHub Releases](https://github.com/win10ogod/krc-villagers/releases) 下載 `krc-villagers-<版本>.jar`，放進遊戲實例的 `mods` 資料夾；多人遊戲的伺服器和每位玩家都要安裝。
 
-本專案已使用以下版本編譯及測試。KRC、通用變身、Mob Player Animator 的相容介面綁定這些版本。
+以下是 **1.0.0 的初始測試組合**。自動更新發布的版本，請以該 Release 的依賴下載表與隨附 `dependencies.lock.json` 為準；每次更新都需重新通過編譯及遊戲測試。
 
 | 模組 | 版本／檔案 |
 | --- | --- |
@@ -85,7 +85,7 @@ calmTicks = 400
 python scripts/import-dependencies.py --download
 ```
 
-KRC 鎖定 [1.1.4／檔案 8869063](https://www.curseforge.com/minecraft/mc-mods/kamen-rider-craft/files/8869063)；通用變身鎖定 [0.1.139 的 v249 armorsnd-back 版本／檔案 8875273](https://www.curseforge.com/minecraft/mc-mods/generic-henshin/files/8875273)，下載後存為專案使用的 `generic_henshin-cf8875273.jar`。不會自動改用最新版或覆蓋不同雜湊的既有檔案。原始下載網址與版本頁均記錄於 [dependencies.lock.json](dependencies.lock.json)。
+初始組合的 KRC 為 [1.1.4／檔案 8869063](https://www.curseforge.com/minecraft/mc-mods/kamen-rider-craft/files/8869063)；通用變身為 [0.1.139 的 v249 armorsnd-back 版本／檔案 8875273](https://www.curseforge.com/minecraft/mc-mods/generic-henshin/files/8875273)，下載後存為專案使用的 `generic_henshin-cf8875273.jar`。下載腳本依目前鎖定檔取得版本，不會自行更新鎖定檔或覆蓋不同雜湊的既有檔案。原始下載網址與版本頁均記錄於 [dependencies.lock.json](dependencies.lock.json)。
 
 也可手動把 KRC 與 GH 的上述 JAR 放在專案根目錄，其他依賴放在 `libs/`。
 
@@ -110,9 +110,22 @@ bash gradlew build runGameTestServer sourceZip
 
 成品在 `build/libs/`；完整專案壓縮包在 `build/distributions/`。`*-sources.jar` 是開發用原始碼，安裝遊戲只需要一般 JAR。
 
-## GitHub 自動編譯
+## 依賴自動更新、編譯與發布
 
-[Build 工作流](https://github.com/win10ogod/krc-villagers/actions/workflows/build.yml) 會在每次 push、Pull Request，以及手動 **Run workflow** 時執行。使用 Ubuntu 24.04、Java 21 與專案的 Gradle wrapper，驗證依賴下載程式、自動取得鎖定的八個依賴，再執行 `build runGameTestServer sourceZip`。
+[Build and release 工作流](https://github.com/win10ogod/krc-villagers/actions/workflows/build.yml) 每 **6 小時**檢查八個依賴模組的更新，排程為 UTC `00:23 / 06:23 / 12:23 / 18:23`，台灣時間 `08:23 / 14:23 / 20:23 / 02:23`；GitHub 排程可能延後。也可選擇 **Run workflow → main**，保留 `check_updates` 勾選，立即檢查、編譯並發布。
+
+1. 查詢適用 **Minecraft 1.21.1 與 NeoForge** 的新檔案。比較 CurseForge 檔案 ID、Modrinth 發布 ID 與日期，因此相同版本號重新上傳也可辨識。Minecraft、NeoForge、Java 本身維持目前版本。
+2. 在 runner 的候選工作目錄下載新 JAR，驗證上游提供的雜湊、實際 mod ID 與版本，重算 SHA-256，再更新 `dependencies.lock.json`；同一批依賴更新只將本模組修訂版號遞增一次，例如 `1.0.0 → 1.0.1`。
+3. 執行下載／更新／發布程式的回歸測試，以及 `build runGameTestServer sourceZip`。全部成功後，由發布工作提交新的鎖定檔與版號到 `main`，自動建立 `v<版本>` 正式 Release。
+4. Release 提供可安裝 JAR、sources JAR、完整專案 ZIP、SHA-256 校驗檔，以及此次精確的依賴下載連結。Release 附件沒有 Actions artifact 的 30 天到期限制。
+
+沒有新檔案時，排程只完成檢查，不產生重複版本。查詢、下載、編譯或 GameTest 失敗時，工作流會標示失敗，現有鎖定檔及可用 Release 保留；上游 Java／Mixin 介面改變導致的不相容，需要修正附屬模組後才能發布。測試期間 `main` 若已有新提交，候選更新也不會覆蓋它，下一次檢查會以新提交重試。
+
+KRC 與通用變身預設使用 [CFWidget 公開索引](https://cfwidget.com/) 查詢 CurseForge 檔案，再從 **CurseForge 官方 CDN** 下載。CFWidget 是第三方快取索引，資料可能晚於上游；若索引比鎖定檔舊，會明確記錄警告並保留較新的已鎖定檔案。若已取得 CurseForge API 金鑰，可加到倉庫的 Actions secret `CURSEFORGE_API_KEY`，改用 [CurseForge 官方 API](https://docs.curseforge.com/rest-api/)；不設金鑰仍可執行。其餘六個模組使用 Modrinth 官方 API。
+
+更新頻道記錄在鎖定檔的 `update.channel`：預設正式版；原本就是 beta 的 Player Animator 保留 beta／正式版追蹤。每個發布 JAR 的直接相依版本會由鎖定檔產生，請配合該 Release 指定的檔案安裝。
+
+普通 push 與 PR 也會編譯測試；`main` 成功後自動發布 `dev-<run ID>` 開發預覽版，PR 不發布。推送與 `mod_version` 一致的版本標籤，例如 `v1.0.0`，則自動發布正式版。已發布的版本不覆寫；中斷留下的同提交草稿可由重新執行發布工作補齊附件。所有發布均使用同次成功建置的成品，發布工作不重新編譯。
 
 遊戲測試必須全部通過；Gradle 會比對測試程式中的項目數與伺服器的成功結果，缺少測試結果也會使工作流失敗。目前共 21 項 GameTest。工作流不執行圖形介面測試，客戶端驗證使用下方 `runClient -PuiSmoke`。
 
@@ -122,7 +135,7 @@ bash gradlew build runGameTestServer sourceZip
 - `distributions/`：包含工作流與下載腳本的完整專案原始碼 ZIP。
 - `SHA256SUMS.txt`：本次成品的 SHA-256。
 
-成品保留 30 天；另有保留 14 天的 `diagnostics-<commit SHA>`，供查看編譯、GameTest 日誌與錯誤報告。第三方依賴不包入成品。要更新依賴，需同步調整鎖定版本、下載網址與 SHA-256，並重新確認相容性。
+Actions 成品保留 30 天；另有保留 14 天的 `diagnostics-<commit SHA>`，供查看編譯、GameTest 日誌、更新清單與錯誤報告。第三方依賴不包入成品。平常安裝可直接使用 Releases 的 JAR。
 
 ## 開發客戶端
 

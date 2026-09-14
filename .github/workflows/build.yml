@@ -1,22 +1,32 @@
-name: Build
+name: Build and release
 
 on:
   push:
   pull_request:
   workflow_dispatch:
+    inputs:
+      check_updates:
+        description: Check for newer dependency mods before building and publishing
+        type: boolean
+        default: true
+  schedule:
+    - cron: '23 */6 * * *'
 
 permissions:
   contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build:
     name: Java 21 / NeoForge 1.21.1
     runs-on: ubuntu-24.04
     timeout-minutes: 45
+    outputs:
+      publish: ${{ steps.plan.outputs.publish }}
+      updated: ${{ steps.updates.outputs.changed }}
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -34,28 +44,61 @@ jobs:
         with:
           cache-provider: basic
 
-      - name: Test dependency importer
+      - name: Test dependency and release automation
         run: python3 -m unittest discover -s scripts/tests -v
 
+      - name: Check for dependency updates
+        id: updates
+        if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.check_updates) }}
+        env:
+          CURSEFORGE_API_KEY: ${{ secrets.CURSEFORGE_API_KEY }}
+        run: python3 scripts/update-dependencies.py
+
+      - name: Plan build and publication
+        id: plan
+        env:
+          UPDATED: ${{ steps.updates.outputs.changed }}
+        run: |
+          python3 - <<'PY'
+          import os, re
+          from pathlib import Path
+          version = re.search(r'^mod_version=(.+)$', Path('gradle.properties').read_text(), re.MULTILINE)[1]
+          event, ref = os.environ['GITHUB_EVENT_NAME'], os.environ['GITHUB_REF']
+          if ref.startswith('refs/tags/v') and ref != 'refs/tags/v' + version:
+              raise SystemExit('Version tag must match mod_version in gradle.properties')
+          build = event != 'schedule' or os.environ['UPDATED'] == 'true'
+          publish = build and event in {'push', 'schedule', 'workflow_dispatch'} and (ref == 'refs/heads/main' or ref.startswith('refs/tags/v'))
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
+              out.write(f'build={str(build).lower()}\npublish={str(publish).lower()}\n')
+          if not build:
+              with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as out:
+                  out.write('Dependency check finished with no newer eligible files; current release retained. See the check log for provider freshness warnings.\n')
+          PY
+
       - name: Cache locked mod dependencies
+        if: ${{ steps.plan.outputs.build == 'true' }}
         uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
         with:
           path: |
-            kamenridercraft-1.1.4.jar
-            generic_henshin-cf8875273.jar
+            *.jar
             libs/*.jar
           key: mods-${{ runner.os }}-${{ hashFiles('dependencies.lock.json') }}
 
       - name: Download and verify locked mod dependencies
+        if: ${{ steps.plan.outputs.build == 'true' }}
         run: python3 scripts/import-dependencies.py --download
 
       - name: Build and run all GameTests
+        if: ${{ steps.plan.outputs.build == 'true' }}
         run: |
           mkdir -p build/ci
           ./gradlew --no-daemon --console=plain build runGameTestServer sourceZip 2>&1 | tee build/ci/gradle.log
 
       - name: Record artifact checksums and test result
+        if: ${{ steps.plan.outputs.build == 'true' }}
         run: |
+          mkdir -p build/ci/release-inputs
+          cp dependencies.lock.json gradle.properties build/ci/release-inputs/
           cd build
           sha256sum libs/*.jar distributions/*.zip > SHA256SUMS.txt
           {
@@ -72,6 +115,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload mod and source archives
+        if: ${{ steps.plan.outputs.build == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: krc-villagers-${{ github.sha }}
@@ -79,6 +123,8 @@ jobs:
             build/libs/*.jar
             build/distributions/*.zip
             build/SHA256SUMS.txt
+            build/ci/release-inputs/
+            build/ci/dependency-updates.json
           if-no-files-found: error
           retention-days: 30
 
@@ -88,9 +134,71 @@ jobs:
         with:
           name: diagnostics-${{ github.sha }}
           path: |
-            build/ci/gradle.log
+            build/ci/
             build/reports/
             run-gametest/logs/
             run-gametest/crash-reports/
           if-no-files-found: ignore
           retention-days: 14
+
+  release:
+    name: Publish verified release
+    needs: build
+    if: ${{ needs.build.outputs.publish == 'true' }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Check out the tested source commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Download artifacts from this successful build
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: krc-villagers-${{ github.sha }}
+          path: build
+
+      - name: Verify candidate metadata and commit tested dependency updates
+        id: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+          UPDATED: ${{ needs.build.outputs.updated }}
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+          with ZipFile(next(Path('build/distributions').glob('*-project.zip'))) as archive:
+              for name in ('dependencies.lock.json', 'gradle.properties'):
+                  candidate = Path('build/ci/release-inputs') / name
+                  if archive.read(name) != candidate.read_bytes():
+                      raise SystemExit(f'Tested project ZIP and release metadata differ: {name}')
+                  Path(name).write_bytes(candidate.read_bytes())
+          PY
+          python3 scripts/release.py --verify-only
+          if [[ "$UPDATED" == 'true' ]]; then
+            gh auth setup-git
+            remote_sha=$(git ls-remote origin refs/heads/main | cut -f1)
+            if [[ "$remote_sha" != "$GITHUB_SHA" ]]; then
+              echo 'main changed while updates were being tested; the next check will retry on the new source.' >&2
+              exit 1
+            fi
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add dependencies.lock.json gradle.properties
+            git commit -m 'Update tested mod dependencies'
+            git push origin HEAD:main
+          elif ! git diff --exit-code -- dependencies.lock.json gradle.properties; then
+            echo 'Unexpected candidate changes in a normal build' >&2
+            exit 1
+          fi
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Publish GitHub Release and verify uploaded assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_SHA: ${{ steps.source.outputs.sha }}
+          DEPENDENCIES_UPDATED: ${{ needs.build.outputs.updated }}
+        run: python3 scripts/release.py
