@@ -15,6 +15,12 @@ spec.loader.exec_module(updater)
 
 
 class UpdateTests(unittest.TestCase):
+    def setUp(self):
+        # Fixture warnings belong in test output, not the real dependency-check summary.
+        summary_env = patch.dict(updater.os.environ, {"GITHUB_STEP_SUMMARY": ""})
+        summary_env.start()
+        self.addCleanup(summary_env.stop)
+
     def test_curseforge_checks_loader_version_channel_and_file_id(self):
         current = {"file_id": 100, "channel": "release"}
         valid = {"id": 101, "versions": ["1.21.1", "NeoForge"], "type": "release"}
