@@ -1,0 +1,23 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.krcvillagers.mixin",
+  "plugin": "dev.krcvillagers.mixin.CompatibilityPlugin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "FormRequirements",
+    "VillagerBrainMixin",
+    "KickAccess",
+    "TimeStopAccess",
+    "KickEligibilityMixin",
+    "KrcCompatMixin",
+    "NativeAbilityMixin",
+    "MightySideMixin",
+    "MobAnimatorServerMixin",
+    "TimeDataAccess",
+    "FormEffectsMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

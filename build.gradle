@@ -1,0 +1,94 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.moddev' version '2.0.143'
+}
+version = mod_version
+group = 'dev.krcvillagers'
+base { archivesName = 'krc-villagers' }
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.withSourcesJar()
+repositories { mavenCentral() }
+sourceSets {
+    gametest { compileClasspath += sourceSets.main.output; runtimeClasspath += sourceSets.main.output }
+}
+configurations {
+    gametestImplementation.extendsFrom implementation
+    gametestRuntimeOnly.extendsFrom runtimeOnly
+}
+neoForge {
+    version = neo_version
+    addModdingDependenciesTo(sourceSets.gametest)
+    runs {
+        client {
+            client()
+            if (project.hasProperty('uiSmoke')) {
+                sourceSet = sourceSets.gametest
+                gameDirectory = file('run-ui')
+                systemProperty 'krcvillagers.uiSmoke', 'true'
+                programArguments.addAll '--width', '1280', '--height', '800'
+            }
+        }
+        server { server(); programArgument '--nogui' }
+        gameTestServer {
+            type = 'gameTestServer'
+            sourceSet = sourceSets.gametest
+            gameDirectory = file('run-gametest')
+            systemProperty 'neoforge.enabledGameTestNamespaces', 'krc_villagers'
+        }
+    }
+    mods {
+        krc_villagers { sourceSet sourceSets.main }
+        krc_villagers_tests { sourceSet sourceSets.gametest }
+    }
+}
+dependencies {
+    implementation files('kamenridercraft-1.1.4.jar', 'generic_henshin-cf8875273.jar')
+    implementation fileTree('libs') { include '*.jar' }
+}
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
+tasks.register('verifyDependencies') {
+    group = 'verification'
+    description = 'Check the exact local mod dependencies recorded in dependencies.lock.json.'
+    doLast {
+        def lock = new groovy.json.JsonSlurper().parse(file('dependencies.lock.json'))
+        lock.files.each { entry ->
+            File dependency = file(entry.path)
+            if (!dependency.isFile()) throw new GradleException("Missing ${entry.path}; see README.md or scripts/import-dependencies.py")
+            def digest = java.security.MessageDigest.getInstance('SHA-256')
+            dependency.withInputStream { stream ->
+                byte[] buffer = new byte[65536]
+                for (int n; (n = stream.read(buffer)) > 0;) digest.update(buffer, 0, n)
+            }
+            if (digest.digest().encodeHex().toString() != entry.sha256)
+                throw new GradleException("Dependency hash differs: ${entry.path}. Use the tested version from dependencies.lock.json.")
+        }
+    }
+}
+tasks.named('compileJava') { dependsOn 'verifyDependencies' }
+tasks.named('jar', Jar) { from('LICENSE') }
+tasks.named('sourcesJar', Jar) { from('LICENSE') }
+tasks.named('processResources', ProcessResources) {
+    inputs.property 'version', project.version
+    filesMatching('META-INF/neoforge.mods.toml') { expand version: project.version }
+}
+tasks.named('runGameTestServer') {
+    doFirst { file('run-gametest/logs').mkdirs(); file('run-gametest/logs/latest.log').text = '' }
+    doLast {
+        int expected = fileTree('src/gametest/java').matching { include '**/*.java' }.files.sum {
+            (it.getText('UTF-8') =~ /@GameTest\s*\(/).count
+        } as int
+        def result = file('run-gametest/logs/latest.log').text =~ /All (\d+) required tests passed/
+        if (expected == 0 || !result.find() || result.group(1).toInteger() != expected)
+            throw new GradleException("GameTest did not confirm all ${expected} required tests passed")
+    }
+}
+tasks.register('sourceZip', Zip) {
+    group = 'build'
+    archiveFileName = "krc-villagers-${project.version}-project.zip"
+    destinationDirectory = layout.buildDirectory.dir('distributions')
+    from(projectDir) {
+        include 'src/**', 'gradle/**', 'scripts/**', 'docs/**', 'evidence/**'
+        include 'gradlew', 'gradlew.bat', '*.gradle', 'gradle.properties', '.gitignore', '.gitattributes'
+        include 'README.md', 'LICENSE', 'THIRD_PARTY.md', 'dependencies.lock.json'
+    }
+}

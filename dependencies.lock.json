@@ -1,0 +1,71 @@
+{
+  "minecraft": "1.21.1",
+  "neoforge": "21.1.244",
+  "java": 21,
+  "files": [
+    {
+      "path": "kamenridercraft-1.1.4.jar",
+      "sha256": "0ecbdaa341592efc105529a537280965baa21bc2c4c08c5b20d744d915fd3690",
+      "modid": "kamenridercraft",
+      "version": "1.1.4",
+      "license": "MIT License",
+      "project": "https://discord.gg/3b37BRX/"
+    },
+    {
+      "path": "generic_henshin-cf8875273.jar",
+      "sha256": "faaac680184f89c71eb514b257f1238129897ab425d35096db52313abe44fa3a",
+      "modid": "generic_henshin",
+      "version": "0.1.139",
+      "license": "WTFPL",
+      "project": ""
+    },
+    {
+      "path": "libs/PlayerAnimationLibNeoforge-1.1.6+mc.1.21.1.jar",
+      "sha256": "e41ee06000fc95444a482018ec24b3f1e79eb111ca6b8ca119e61ceabf9136c5",
+      "modid": "player_animation_library",
+      "version": "1.1.6+mc.1.21.1",
+      "license": "MIT License",
+      "project": "https://docs.zigythebird.com/pal/intro"
+    },
+    {
+      "path": "libs/cloth-config-15.0.140-neoforge.jar",
+      "sha256": "65e722e0d98431a07c45f8bdd8d529a217cc8c175fde1740248bd5c1b4f3c0d4",
+      "modid": "cloth_config",
+      "version": "15.0.140",
+      "license": "GNU LGPLv3",
+      "project": "https://github.com/architectury/ClothConfig/issues/"
+    },
+    {
+      "path": "libs/geckolib-neoforge-1.21.1-4.9.2.jar",
+      "sha256": "5e548466af9ab6aca7a91a7c7d4dc0dc8bc385e22958aed5da0e7bebd0fa3fba",
+      "modid": "geckolib",
+      "version": "4.9.2",
+      "license": "MIT",
+      "project": "http://geckolib.com/"
+    },
+    {
+      "path": "libs/mobplayeranimator-neoforge-1.21.1-1.4.0.jar",
+      "sha256": "cded8a1f98d0f648b8b8dec24f5cec6d38a333790df9ab5994f7be4cd12954a7",
+      "modid": "mobplayeranimator",
+      "version": "1.4.0",
+      "license": "C0-1.0",
+      "project": ""
+    },
+    {
+      "path": "libs/player-animation-lib-forge-2.0.4+1.21.1.jar",
+      "sha256": "dbe5de45f5cd60c0e5e47af14e6d564534a98456e973cf670cb881f6938eee92",
+      "modid": "playeranimator",
+      "version": "2.0.4+1.21.1",
+      "license": "MIT",
+      "project": "https://github.com/KosmX/minecraftPlayerAnimator"
+    },
+    {
+      "path": "libs/timeclock-4.7.0-neoforge-1.21.1.jar",
+      "sha256": "87c0394640046b591e14abc78ca94a973d7e5a2ca09eb88f4de999d44eeb63bb",
+      "modid": "timeclock",
+      "version": "4.7.0",
+      "license": "MIT",
+      "project": "https://www.curseforge.com/minecraft/mc-mods/time-stop-clock-mod"
+    }
+  ]
+}
