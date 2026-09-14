@@ -6,3 +6,5 @@ libs/*.jar
 run*/
 *.log
 dist/
+__pycache__/
+*.pyc

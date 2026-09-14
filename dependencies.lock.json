@@ -9,7 +9,9 @@
       "modid": "kamenridercraft",
       "version": "1.1.4",
       "license": "MIT License",
-      "project": "https://discord.gg/3b37BRX/"
+      "project": "https://www.curseforge.com/minecraft/mc-mods/kamen-rider-craft",
+      "source_url": "https://www.curseforge.com/minecraft/mc-mods/kamen-rider-craft/files/8869063",
+      "download_url": "https://edge.forgecdn.net/files/8869/63/kamenridercraft-1.1.4.jar"
     },
     {
       "path": "generic_henshin-cf8875273.jar",
@@ -17,7 +19,9 @@
       "modid": "generic_henshin",
       "version": "0.1.139",
       "license": "WTFPL",
-      "project": ""
+      "project": "https://www.curseforge.com/minecraft/mc-mods/generic-henshin",
+      "source_url": "https://www.curseforge.com/minecraft/mc-mods/generic-henshin/files/8875273",
+      "download_url": "https://edge.forgecdn.net/files/8875/273/generic_henshin-0.1.139-littlejoys-v249-armorsnd-back.jar"
     },
     {
       "path": "libs/PlayerAnimationLibNeoforge-1.1.6+mc.1.21.1.jar",
@@ -25,7 +29,9 @@
       "modid": "player_animation_library",
       "version": "1.1.6+mc.1.21.1",
       "license": "MIT License",
-      "project": "https://docs.zigythebird.com/pal/intro"
+      "project": "https://docs.zigythebird.com/pal/intro",
+      "source_url": "https://modrinth.com/mod/ha1mEyJS/version/yjxtkvnD",
+      "download_url": "https://cdn.modrinth.com/data/ha1mEyJS/versions/yjxtkvnD/PlayerAnimationLibNeoforge-1.1.6%2Bmc.1.21.1.jar"
     },
     {
       "path": "libs/cloth-config-15.0.140-neoforge.jar",
@@ -33,7 +39,9 @@
       "modid": "cloth_config",
       "version": "15.0.140",
       "license": "GNU LGPLv3",
-      "project": "https://github.com/architectury/ClothConfig/issues/"
+      "project": "https://github.com/architectury/ClothConfig/issues/",
+      "source_url": "https://modrinth.com/mod/9s6osm5g/version/izKINKFg",
+      "download_url": "https://cdn.modrinth.com/data/9s6osm5g/versions/izKINKFg/cloth-config-15.0.140-neoforge.jar"
     },
     {
       "path": "libs/geckolib-neoforge-1.21.1-4.9.2.jar",
@@ -41,7 +49,9 @@
       "modid": "geckolib",
       "version": "4.9.2",
       "license": "MIT",
-      "project": "http://geckolib.com/"
+      "project": "http://geckolib.com/",
+      "source_url": "https://modrinth.com/mod/8BmcQJ2H/version/tPkJmim6",
+      "download_url": "https://cdn.modrinth.com/data/8BmcQJ2H/versions/tPkJmim6/geckolib-neoforge-1.21.1-4.9.2.jar"
     },
     {
       "path": "libs/mobplayeranimator-neoforge-1.21.1-1.4.0.jar",
@@ -49,7 +59,9 @@
       "modid": "mobplayeranimator",
       "version": "1.4.0",
       "license": "C0-1.0",
-      "project": ""
+      "project": "",
+      "source_url": "https://modrinth.com/mod/PCU8g6be/version/JrxzuIUx",
+      "download_url": "https://cdn.modrinth.com/data/PCU8g6be/versions/JrxzuIUx/mobplayeranimator-neoforge-1.21.1-1.4.0.jar"
     },
     {
       "path": "libs/player-animation-lib-forge-2.0.4+1.21.1.jar",
@@ -57,7 +69,9 @@
       "modid": "playeranimator",
       "version": "2.0.4+1.21.1",
       "license": "MIT",
-      "project": "https://github.com/KosmX/minecraftPlayerAnimator"
+      "project": "https://github.com/KosmX/minecraftPlayerAnimator",
+      "source_url": "https://modrinth.com/mod/gedNE4y2/version/HJZB6bmA",
+      "download_url": "https://cdn.modrinth.com/data/gedNE4y2/versions/HJZB6bmA/player-animation-lib-forge-2.0.4%2B1.21.1.jar"
     },
     {
       "path": "libs/timeclock-4.7.0-neoforge-1.21.1.jar",
@@ -65,7 +79,9 @@
       "modid": "timeclock",
       "version": "4.7.0",
       "license": "MIT",
-      "project": "https://www.curseforge.com/minecraft/mc-mods/time-stop-clock-mod"
+      "project": "https://www.curseforge.com/minecraft/mc-mods/time-stop-clock-mod",
+      "source_url": "https://modrinth.com/mod/KZOjyOXV/version/YPUMGIbu",
+      "download_url": "https://cdn.modrinth.com/data/KZOjyOXV/versions/YPUMGIbu/timeclock-4.7.0-neoforge-1.21.1.jar"
     }
   ]
 }

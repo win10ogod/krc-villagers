@@ -1,0 +1,96 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Java 21 / NeoForge 1.21.1
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Java 21
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle and validate wrapper
+        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6
+        with:
+          cache-provider: basic
+
+      - name: Test dependency importer
+        run: python3 -m unittest discover -s scripts/tests -v
+
+      - name: Cache locked mod dependencies
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+        with:
+          path: |
+            kamenridercraft-1.1.4.jar
+            generic_henshin-cf8875273.jar
+            libs/*.jar
+          key: mods-${{ runner.os }}-${{ hashFiles('dependencies.lock.json') }}
+
+      - name: Download and verify locked mod dependencies
+        run: python3 scripts/import-dependencies.py --download
+
+      - name: Build and run all GameTests
+        run: |
+          mkdir -p build/ci
+          ./gradlew --no-daemon --console=plain build runGameTestServer sourceZip 2>&1 | tee build/ci/gradle.log
+
+      - name: Record artifact checksums and test result
+        run: |
+          cd build
+          sha256sum libs/*.jar distributions/*.zip > SHA256SUMS.txt
+          {
+            echo '### KRC Villagers build'
+            echo 'Minecraft 1.21.1 · NeoForge 21.1.244 · Java 21'
+            echo
+            grep -oE 'All [0-9]+ required tests passed' ../run-gametest/logs/latest.log
+            echo
+            echo 'Download the build artifact below. Install the regular JAR from `libs/`; `-sources.jar` and the project ZIP are for development.'
+            echo
+            echo '```text'
+            cat SHA256SUMS.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload mod and source archives
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: krc-villagers-${{ github.sha }}
+          path: |
+            build/libs/*.jar
+            build/distributions/*.zip
+            build/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload build and GameTest diagnostics
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: diagnostics-${{ github.sha }}
+          path: |
+            build/ci/gradle.log
+            build/reports/
+            run-gametest/logs/
+            run-gametest/crash-reports/
+          if-no-files-found: ignore
+          retention-days: 14

@@ -1,5 +1,7 @@
 # 假面騎士村民 / KRC Villagers
 
+[![Build](https://github.com/win10ogod/krc-villagers/actions/workflows/build.yml/badge.svg)](https://github.com/win10ogod/krc-villagers/actions/workflows/build.yml)
+
 假面騎士工藝（Kamen Rider Craft）的附屬模組。招募原版村民、交付腰帶和形態道具，讓村民使用通用變身的動畫與騎士拳／踢，並依目前形態施放技能。
 
 **Shift＋右鍵開啟村民管理；普通右鍵仍是原版交易。**
@@ -77,7 +79,15 @@ calmTicks = 400
 
 ## 編譯與開發
 
-安裝 Java 21；Gradle wrapper 會使用 Java 21 toolchain，也可自動取得編譯用 JDK。把 KRC 與 GH 的上述 JAR 放在專案根目錄，其他依賴放在 `libs/`。
+安裝 Java 21 與 Python 3.11 以上；Gradle wrapper 會使用 Java 21 toolchain，也可自動取得編譯用 JDK。執行以下指令，會從 CurseForge 官方 CDN 與 Modrinth 自動下載鎖定版本，並驗證每個檔案的 SHA-256，不需要 API 金鑰：
+
+```bash
+python scripts/import-dependencies.py --download
+```
+
+KRC 鎖定 [1.1.4／檔案 8869063](https://www.curseforge.com/minecraft/mc-mods/kamen-rider-craft/files/8869063)；通用變身鎖定 [0.1.139 的 v249 armorsnd-back 版本／檔案 8875273](https://www.curseforge.com/minecraft/mc-mods/generic-henshin/files/8875273)，下載後存為專案使用的 `generic_henshin-cf8875273.jar`。不會自動改用最新版或覆蓋不同雜湊的既有檔案。原始下載網址與版本頁均記錄於 [dependencies.lock.json](dependencies.lock.json)。
+
+也可手動把 KRC 與 GH 的上述 JAR 放在專案根目錄，其他依賴放在 `libs/`。
 
 可從既有模組包複製符合雜湊的依賴，來源資料夾不會被修改：
 
@@ -99,6 +109,22 @@ bash gradlew build runGameTestServer sourceZip
 ```
 
 成品在 `build/libs/`；完整專案壓縮包在 `build/distributions/`。`*-sources.jar` 是開發用原始碼，安裝遊戲只需要一般 JAR。
+
+## GitHub 自動編譯
+
+[Build 工作流](https://github.com/win10ogod/krc-villagers/actions/workflows/build.yml) 會在每次 push、Pull Request，以及手動 **Run workflow** 時執行。使用 Ubuntu 24.04、Java 21 與專案的 Gradle wrapper，驗證依賴下載程式、自動取得鎖定的八個依賴，再執行 `build runGameTestServer sourceZip`。
+
+遊戲測試必須全部通過；Gradle 會比對測試程式中的項目數與伺服器的成功結果，缺少測試結果也會使工作流失敗。目前共 21 項 GameTest。工作流不執行圖形介面測試，客戶端驗證使用下方 `runClient -PuiSmoke`。
+
+登入 GitHub，開啟成功的執行紀錄，在 **Artifacts** 下載 `krc-villagers-<commit SHA>`。壓縮檔包含：
+
+- `libs/`：可安裝的模組 JAR 與開發用 sources JAR。
+- `distributions/`：包含工作流與下載腳本的完整專案原始碼 ZIP。
+- `SHA256SUMS.txt`：本次成品的 SHA-256。
+
+成品保留 30 天；另有保留 14 天的 `diagnostics-<commit SHA>`，供查看編譯、GameTest 日誌與錯誤報告。第三方依賴不包入成品。要更新依賴，需同步調整鎖定版本、下載網址與 SHA-256，並重新確認相容性。
+
+## 開發客戶端
 
 `runClient` 可啟動開發客戶端。`runClient -PuiSmoke` 執行隔離的測試世界流程並產生 `evidence/` 截圖；此參數使用測試模組，測試程式不會進入發行 JAR。Linux 無桌面環境可用 `xvfb-run -a bash gradlew runClient -PuiSmoke`。
 

@@ -87,7 +87,8 @@ tasks.register('sourceZip', Zip) {
     archiveFileName = "krc-villagers-${project.version}-project.zip"
     destinationDirectory = layout.buildDirectory.dir('distributions')
     from(projectDir) {
-        include 'src/**', 'gradle/**', 'scripts/**', 'docs/**', 'evidence/**'
+        include 'src/**', 'gradle/**', 'scripts/**', 'docs/**', 'evidence/**', '.github/**'
+        exclude '**/__pycache__/**', '**/*.pyc', 'evidence/*.log'
         include 'gradlew', 'gradlew.bat', '*.gradle', 'gradle.properties', '.gitignore', '.gitattributes'
         include 'README.md', 'LICENSE', 'THIRD_PARTY.md', 'dependencies.lock.json'
     }
