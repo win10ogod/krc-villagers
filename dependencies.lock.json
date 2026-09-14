@@ -20,18 +20,18 @@
       }
     },
     {
-      "path": "generic_henshin-cf8875273.jar",
-      "sha256": "faaac680184f89c71eb514b257f1238129897ab425d35096db52313abe44fa3a",
+      "path": "generic_henshin-cf8880831.jar",
+      "sha256": "50346c40b86475c4f63e02e08e04ea83f13fee0ad3a8ec9fc35b4ca176c8507e",
       "modid": "generic_henshin",
       "version": "0.1.139",
       "license": "WTFPL",
       "project": "https://www.curseforge.com/minecraft/mc-mods/generic-henshin",
-      "source_url": "https://www.curseforge.com/minecraft/mc-mods/generic-henshin/files/8875273",
-      "download_url": "https://edge.forgecdn.net/files/8875/273/generic_henshin-0.1.139-littlejoys-v249-armorsnd-back.jar",
+      "source_url": "https://www.curseforge.com/minecraft/mc-mods/generic-henshin/files/8880831",
+      "download_url": "https://edge.forgecdn.net/files/8880/831/generic_henshin-0.1.139-littlejoys-v272-all-kick-range.jar",
       "update": {
         "provider": "curseforge",
         "project_id": 1668781,
-        "file_id": 8875273,
+        "file_id": 8880831,
         "channel": "release"
       }
     },
