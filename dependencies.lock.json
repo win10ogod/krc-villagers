@@ -20,18 +20,18 @@
       }
     },
     {
-      "path": "generic_henshin-cf8887799.jar",
-      "sha256": "ca558076f8cf9628fa4a6dfd183a2ba1fa42393aeedc7f0f4a287531d45c9285",
+      "path": "generic_henshin-cf8893780.jar",
+      "sha256": "a2a75fbb94dedb26846118bc242979467b2eb8b5bd187ed17c1e3dec10ff1731",
       "modid": "generic_henshin",
       "version": "0.1.139",
       "license": "WTFPL",
       "project": "https://www.curseforge.com/minecraft/mc-mods/generic-henshin",
-      "source_url": "https://www.curseforge.com/minecraft/mc-mods/generic-henshin/files/8887799",
-      "download_url": "https://edge.forgecdn.net/files/8887/799/generic_henshin-0.1.139-littlejoys-v307-final.jar",
+      "source_url": "https://www.curseforge.com/minecraft/mc-mods/generic-henshin/files/8893780",
+      "download_url": "https://edge.forgecdn.net/files/8893/780/generic_henshin-0.1.139-littlejoys-v316-kickmode-icon-bladesfix.jar",
       "update": {
         "provider": "curseforge",
         "project_id": 1668781,
-        "file_id": 8887799,
+        "file_id": 8893780,
         "channel": "release"
       }
     },
@@ -70,19 +70,19 @@
       }
     },
     {
-      "path": "libs/geckolib-neoforge-1.21.1-4.9.2.jar",
-      "sha256": "5e548466af9ab6aca7a91a7c7d4dc0dc8bc385e22958aed5da0e7bebd0fa3fba",
+      "path": "libs/geckolib-neoforge-1.21.1-4.9.3.jar",
+      "sha256": "20a1995e4074f387ff549e2c57ea79dd7d41ee83c6afb9dd6a6e840e592d1c47",
       "modid": "geckolib",
-      "version": "4.9.2",
+      "version": "4.9.3",
       "license": "MIT",
       "project": "http://geckolib.com/",
-      "source_url": "https://modrinth.com/mod/8BmcQJ2H/version/tPkJmim6",
-      "download_url": "https://cdn.modrinth.com/data/8BmcQJ2H/versions/tPkJmim6/geckolib-neoforge-1.21.1-4.9.2.jar",
+      "source_url": "https://modrinth.com/mod/8BmcQJ2H/version/Grwn5rUB",
+      "download_url": "https://cdn.modrinth.com/data/8BmcQJ2H/versions/Grwn5rUB/geckolib-neoforge-1.21.1-4.9.3.jar",
       "update": {
         "provider": "modrinth",
         "project_id": "8BmcQJ2H",
-        "version_id": "tPkJmim6",
-        "published_at": "2026-07-01T03:42:04.254010Z",
+        "version_id": "Grwn5rUB",
+        "published_at": "2026-09-16T07:34:19.892008Z",
         "channel": "release"
       }
     },
