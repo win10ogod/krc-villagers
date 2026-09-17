@@ -11,6 +11,9 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 @EventBusSubscriber(modid=KrcVillagers.ID,value=Dist.CLIENT,bus=EventBusSubscriber.Bus.MOD)
 public final class ClientEvents {
+    @SubscribeEvent public static void keys(net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent e) {
+        e.register(CompanionKeys.MANAGE);
+    }
     @SubscribeEvent public static void reload(net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent e) {
         e.registerReloadListener((net.minecraft.server.packs.resources.ResourceManagerReloadListener)r -> CompanionAnimations.invalidate());
     }

@@ -59,5 +59,7 @@
   "screen.krc_villagers.mob_skills_disabled": "Generic Henshin mob skills are disabled in its config.",
   "screen.krc_villagers.auto_forms.on": "Auto forms: ON",
   "screen.krc_villagers.auto_forms.off": "Auto forms: OFF",
-  "screen.krc_villagers.auto_forms.hint": "Choose entrusted forms for health, enemies and terrain. Include prerequisite items in reserves."
+  "screen.krc_villagers.auto_forms.hint": "Choose entrusted forms for health, enemies and terrain. Include prerequisite items in reserves.",
+  "key.categories.krc_villagers": "Kamen Rider Villagers",
+  "key.krc_villagers.manage": "Open villager management"
 }

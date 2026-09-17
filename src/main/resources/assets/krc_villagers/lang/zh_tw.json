@@ -59,5 +59,7 @@
   "screen.krc_villagers.mob_skills_disabled": "通用變身設定已停用生物騎士拳／踢。",
   "screen.krc_villagers.auto_forms.on": "自動換形態：開",
   "screen.krc_villagers.auto_forms.off": "自動換形態：關",
-  "screen.krc_villagers.auto_forms.hint": "依生命、敵人與環境選擇已交付的形態；前置道具也需放入備用欄。"
+  "screen.krc_villagers.auto_forms.hint": "依生命、敵人與環境選擇已交付的形態；前置道具也需放入備用欄。",
+  "key.categories.krc_villagers": "假面騎士村民",
+  "key.krc_villagers.manage": "開啟村民管理"
 }

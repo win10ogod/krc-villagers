@@ -45,7 +45,7 @@ public final class LiveClient {
         var mc=Minecraft.getInstance();
         if(mc.getOverlay()!=null)return;
         if(!creating&&mc.screen instanceof TitleScreen){
-            creating=true;mc.getTutorial().setStep(net.minecraft.client.tutorial.TutorialSteps.NONE);mc.options.guiScale().set(2);mc.options.pauseOnLostFocus=false;
+            creating=true;dev.krcvillagers.client.CompanionKeys.MANAGE.setToDefault();net.minecraft.client.KeyMapping.resetMapping();mc.getTutorial().setStep(net.minecraft.client.tutorial.TutorialSteps.NONE);mc.options.guiScale().set(2);mc.options.pauseOnLostFocus=false;
             var rules=new GameRules();rules.getRule(GameRules.RULE_DOMOBSPAWNING).set(false,null);
             mc.createWorldOpenFlows().createFreshLevel("krc-villagers-live-"+System.currentTimeMillis(),
                     new LevelSettings("KRC Villagers Live Verification",GameType.CREATIVE,false,Difficulty.NORMAL,true,rules,WorldDataConfiguration.DEFAULT),
@@ -66,13 +66,13 @@ public final class LiveClient {
             });return;
         }
         if(!serverSetup||!(mc.level.getEntity(villagerId) instanceof Villager v))return;
+        if(Boolean.getBoolean("krcvillagers.keysOnly")&&phase==1){phase=22;verifiedImprovements=true;}
         if(++ticks<30)return;
         switch(phase){
             case 1 -> {mc.player.setYRot(180);mc.player.setXRot(7);mc.gameMode.interact(mc.player,v,InteractionHand.MAIN_HAND);next();}
             case 2 -> {
                 require(mc.player.containerMenu instanceof MerchantMenu,"ordinary right click opens vanilla trades");capture("01-vanilla-trading");mc.player.closeContainer();
-                mc.options.keyShift.setDown(true);mc.player.input.shiftKeyDown=true;mc.player.setShiftKeyDown(true);mc.player.connection.send(new ServerboundPlayerCommandPacket(mc.player,ServerboundPlayerCommandPacket.Action.PRESS_SHIFT_KEY));
-                mc.gameMode.interact(mc.player,v,InteractionHand.MAIN_HAND);next();
+                KeyBindingsLive.defaultShortcut(v);next();
             }
             case 3 -> {
                 require(mc.screen instanceof CompanionScreen,"Shift right click opens companion menu");capture("02-recruitment");press(Component.translatable("screen.krc_villagers.recruit_cost",((CompanionScreen)mc.screen).getMenu().values.get(8)).getString());next();
@@ -113,13 +113,11 @@ public final class LiveClient {
             case 10 -> {
                 if(ticks==30)capture("10-rider-kick-strike");
                 if(ticks<160)return;
-                mc.getSingleplayerServer().execute(()->{var npc=(Villager)mc.getSingleplayerServer().overworld().getEntity(villagerId);Companions.down(npc);});next();
+                mc.getSingleplayerServer().execute(()->{var npc=(Villager)mc.getSingleplayerServer().overworld().getEntity(villagerId);Companions.down(npc);var p=mc.getSingleplayerServer().getPlayerList().getPlayers().getFirst();p.teleportTo(npc.getX()+3,npc.getY(),npc.getZ());});next();
             }
             case 11 -> {
                 capture("08-downed-companion");
-                mc.options.keyShift.setDown(true);mc.player.input.shiftKeyDown=true;mc.player.setShiftKeyDown(true);
-                mc.player.connection.send(new ServerboundPlayerCommandPacket(mc.player,ServerboundPlayerCommandPacket.Action.PRESS_SHIFT_KEY));
-                mc.gameMode.interact(mc.player,v,InteractionHand.MAIN_HAND);next();
+                KeyBindingsLive.defaultShortcut(v);next();
             }
             case 12 -> {
                 require(mc.screen instanceof CompanionScreen,"downed management opens");
@@ -178,9 +176,7 @@ public final class LiveClient {
             case 17 -> {
                 if(ticks<140)return;
                 mc.player.setYRot(180);mc.player.setXRot(7);
-                mc.options.keyShift.setDown(true);mc.player.input.shiftKeyDown=true;mc.player.setShiftKeyDown(true);
-                mc.player.connection.send(new ServerboundPlayerCommandPacket(mc.player,ServerboundPlayerCommandPacket.Action.PRESS_SHIFT_KEY));
-                mc.gameMode.interact(mc.player,v,InteractionHand.MAIN_HAND);next();
+                KeyBindingsLive.defaultShortcut(v);next();
             }
             case 18 -> {
                 require(mc.screen instanceof CompanionScreen,"Gaim transformed management opens");
@@ -221,11 +217,16 @@ public final class LiveClient {
                 });next();
             }
             case 22 -> {
-                if(!verifiedImprovements)return;
-                System.out.println("KRC_VILLAGERS_LIVE_OK: trade, Shift UI, recruitment, scaled controls, armor, GH punch/kick, rescue, Odin time stop, Gaim reserve forms, auto switching, healing, native ranged combat and exact equipment returns verified");mc.stop();phase=23;
+                if(!verifiedImprovements||!KeyBindingsLive.tick(v))return;
+                if(Boolean.getBoolean("krcvillagers.keysOnly"))System.out.println("KRC_VILLAGERS_KEYS_OK: native keyboard/mouse rebinding, persistence, unbinding, reset and vanilla interactions verified");
+                else System.out.println("KRC_VILLAGERS_LIVE_OK: trade, Shift UI, recruitment, scaled controls, armor, GH punch/kick, rescue, Odin time stop, Gaim reserve forms, auto switching, healing, native ranged combat, exact equipment returns and configurable keyboard/mouse shortcuts verified");mc.stop();phase=23;
             }
             default -> {}
         }
+    }
+    @SubscribeEvent public static void inputTrace(net.neoforged.neoforge.client.event.InputEvent.Key event) {
+        if(!Boolean.getBoolean("krcvillagers.uiSmoke")||phase!=22)return;
+        var mc=Minecraft.getInstance();System.out.println("LIVE_KEY_EVENT key="+event.getKey()+" action="+event.getAction()+" target="+(mc.hitResult instanceof net.minecraft.world.phys.EntityHitResult hit?hit.getEntity():mc.hitResult)+" active="+dev.krcvillagers.client.CompanionKeys.MANAGE.isActiveAndMatches(com.mojang.blaze3d.platform.InputConstants.getKey(event.getKey(),event.getScanCode()))+" screen="+mc.screen);
     }
     private static void next(){phase++;ticks=0;}
     private static void press(String label){
@@ -237,7 +238,7 @@ public final class LiveClient {
         require(screen.mouseClicked(x,y,0),"mouse click accepted: "+label);screen.mouseReleased(x,y,0);
     }
     private static void require(boolean condition,String name){if(!condition)throw new IllegalStateException("LIVE FAILURE: "+name);System.out.println("LIVE_CHECK "+name);}
-    private static void capture(String name){
+    static void capture(String name){
         try{var mc=Minecraft.getInstance();Path p=Path.of("../evidence/"+name+".png");Files.createDirectories(p.toAbsolutePath().getParent());try(var image=Screenshot.takeScreenshot(mc.getMainRenderTarget())){image.writeToFile(p);}System.out.println("LIVE_CAPTURE "+p.toAbsolutePath());}
         catch(Exception ex){throw new IllegalStateException(ex);}
     }

@@ -25,6 +25,7 @@
 | 失敗施放 | 停用、未知技能與不足能量不扣費。 |
 | Clock Up | 原 KRC 起手、淨扣 50 能量、TimeClock 真實降低時間速度；施放鎖清理，結束時恢復時間並移除自身計時項。 |
 | 時停 | Odin 識別、TimeClock 真實暫停、扣 100 能量與清理；第二名施法者不搶占，也不扣費；原有白名單保留。 |
+| 自訂按鍵管理封包 | 不需潛行即可開啟管理，仍檢查主人權限；拒絕超距離、隔牆、旁觀／死亡玩家、失效／非村民目標及已有交易者；重複請求不替換既有容器。 |
 | 多人權限邏輯 | 兩個伺服器玩家物件分別操作：非招募者、錯誤視窗及超距離封包拒絕；招募者操作成功。 |
 | 武器保管 | 525 種已註冊劍、工具、弓弩及 KRC 槍械逐一通過原版交易結束與骨粉工作展示；實際交易預覽、空主手重載、倒地、解約單次返還、正常耐久損壞另有斷言。 |
 | 裝甲回血 | 真實 entity tick 比較基本 Gaim、Golden Ringo 與無回血的 Kuuga；驗證飽和回血、額外再生、解除後停止，以及停用 naturalRegeneration 時不透過飽和回血。 |
@@ -33,15 +34,17 @@
 | 游泳 | 跟隨、駐守、自由生活三名村民由深水中浮起並抵達乾燥岸邊，回復空氣且沒有溺水掉血。 |
 | 原版生活 | 無戰鬥的自由生活模式恢復原版 Brain；駐守模式取得行為控制。 |
 
-這些測試共 **37 項**。1.1.0 執行結果收錄在 [測試結果摘要](test-results.md)。本次伺服器日誌保留於本機 `.work/improvements-tests.log`；後續自動建置的日誌由 Actions 的 `diagnostics` artifact 提供，不納入 Git 倉庫或專案原始碼 ZIP。
+這些測試共 **40 項**。1.2.0 執行結果收錄在 [測試結果摘要](test-results.md)。本次伺服器日誌保留於本機 `.work/keybindings-tests.log`；後續自動建置的日誌由 Actions 的 `diagnostics` artifact 提供，不納入 Git 倉庫或專案原始碼 ZIP。
 
 ## 實機與畫面
 
-執行 `xvfb-run -a -s '-screen 0 1280x800x24' bash gradlew runClient -PuiSmoke --console=plain`。測試程式位於 `src/gametest/`，不會打包進正式模組。
+執行 `xvfb-run -a -s '-screen 0 1280x800x24' bash gradlew runClient -PuiSmoke --console=plain`。測試程式位於 `src/gametest/`，不會打包進正式模組。鍵鼠輸入透過 `scripts/live-input.py` 使用系統 Python 3、libX11 與 libXtst，只操作此次 `xvfb-run` 的獨立顯示環境。
 
 實機流程以真正的互動／容器封包開啟原版交易、Shift＋右鍵管理、招募、交付腰帶，並以畫面座標點擊行為按鈕。GUI 比例 3 時縮放整個容器與滑鼠座標，確認駐守選擇到達伺服器。戰鬥階段由 GH AI 自行決定技能，不以直接呼叫技能冒充自動戰鬥。
 
-測試世界使用創造模式玩家、固定位置且無 AI 的敵人，以及測試用生命和能量設定。為驗證時停，測試程式另外為同一村民交付 Odin 腰帶；此段檢查自動技能與連線客戶端，不重複測試 Odin 的拖放操作。生存模式實際收費由伺服器測試覆蓋。1.1.0 另在真實客戶端交付兩枚同槽鎖種、按鈕開啟自動換形態、確認 Black Ringo 與回血同步，並確認 Musou Saber 遠程射擊及返還。
+測試世界使用創造模式玩家、固定位置且無 AI 的敵人，以及測試用生命和能量設定。為驗證時停，測試程式另外為同一村民交付 Odin 腰帶；此段檢查自動技能與連線客戶端，不重複測試 Odin 的拖放操作。生存模式實際收費由伺服器測試覆蓋。另在真實客戶端交付兩枚同槽鎖種、按鈕開啟自動換形態、確認 Black Ringo 與回血同步，並確認 Musou Saber 遠程射擊及返還。
+
+1.2.0 另以原版按鍵設定畫面改成 N，重新載入選項驗證保存，再以獨立 Xvfb 的原生鍵鼠事件開啟管理。檢查舊 Shift＋右鍵不再開啟管理、普通右鍵仍可交易，然後改成滑鼠中鍵、按 Esc 取消綁定、按原版「重設」還原並再次開啟。GUI 開啟時和準星未指向村民時，管理快捷鍵不啟用。
 
 | 證據 | 畫面 |
 | --- | --- |
@@ -61,10 +64,14 @@
 | 變身中交付兩枚鎖種 | [14-gaim-reserve-forms.png](../evidence/14-gaim-reserve-forms.png) |
 | 自動 Black Ringo 與回血 | [15-gaim-auto-healing.png](../evidence/15-gaim-auto-healing.png) |
 | 鎧武遠程戰鬥 | [16-gaim-ranged-combat.png](../evidence/16-gaim-ranged-combat.png) |
+| 原版按鍵設定中的預設組合 | [17-default-key-binding.png](../evidence/17-default-key-binding.png) |
+| 改成 N 並重新載入設定 | [18-rebound-key-setting.png](../evidence/18-rebound-key-setting.png) |
+| 自訂鍵盤鍵開啟管理 | [19-rebound-management.png](../evidence/19-rebound-management.png) |
+| 改成單獨滑鼠中鍵 | [20-mouse-key-setting.png](../evidence/20-mouse-key-setting.png) |
 
-客戶端執行結果收錄在 [測試結果摘要](test-results.md)，成功標記為 `KRC_VILLAGERS_LIVE_OK`。完整日誌保留於本機 `.work/improvements-client.log`，不納入 Git 倉庫或專案原始碼 ZIP。截圖顯示外觀，技能開始、狀態清理與物品數量另有狀態斷言；時停亦檢查客戶端的 TimeClock 暫停狀態，以及解約後的客戶端恢復狀態。
+客戶端執行結果收錄在 [測試結果摘要](test-results.md)，成功標記為 `KRC_VILLAGERS_LIVE_OK`。完整日誌保留於本機 `.work/keybindings-client.log`，不納入 Git 倉庫或專案原始碼 ZIP。截圖顯示外觀，技能開始、狀態清理與物品數量另有狀態斷言；時停亦檢查客戶端的 TimeClock 暫停狀態，以及解約後的客戶端恢復狀態。
 
-以上圖形客戶端證據使用 1.1.0 的鎖定依賴組合。依賴自動更新的發布條件為編譯及全部伺服器 GameTest 通過，不代表逐版重跑了圖形客戶端或完整模組包遊玩。
+以上圖形客戶端證據使用 1.2.0 的鎖定依賴組合。依賴自動更新的發布條件為編譯及全部伺服器 GameTest 通過，不代表逐版重跑了圖形客戶端或完整模組包遊玩。
 
 ## 版本相容處理
 

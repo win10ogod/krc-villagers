@@ -42,6 +42,7 @@ public final class CompanionTests {
                 new net.minecraft.network.Connection(net.minecraft.network.protocol.PacketFlow.SERVERBOUND),player,
                 net.minecraft.server.network.CommonListenerCookie.createInitial(profile,false)) {
             @Override public void send(net.minecraft.network.protocol.Packet<?> packet) {} // no negotiated remote client in a GameTest
+            @Override public boolean hasChannel(ResourceLocation id) { return false; }
         };
         player.setGameMode(GameType.CREATIVE);return player;
     }

@@ -1,29 +1,16 @@
 package dev.krcvillagers;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.SimpleMenuProvider;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.living.*;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 @EventBusSubscriber(modid=KrcVillagers.ID)
 public final class Events {
-    @SubscribeEvent public static void interact(PlayerInteractEvent.EntityInteract e) {
-        if(!(e.getTarget() instanceof Villager v) || !e.getEntity().isShiftKeyDown()) return;
-        e.setCanceled(true); e.setCancellationResult(InteractionResult.SUCCESS);
-        if(e.getHand()!=InteractionHand.MAIN_HAND || !(e.getEntity() instanceof ServerPlayer p)) return;
-        p.openMenu(new SimpleMenuProvider((id,inv,player)->new CompanionMenu(id,inv,v,true),Component.translatable("screen.krc_villagers.title")),buf->buf.writeVarInt(v.getId()));
-        v.setTradingPlayer(p); v.getNavigation().stop();
-        Protocol.sync(v); Protocol.details(p,v);
-    }
     @SubscribeEvent public static void tick(EntityTickEvent.Post e) { if(e.getEntity() instanceof Villager v && !v.level().isClientSide()) Companions.tick(v); }
     @SubscribeEvent(priority=EventPriority.HIGHEST) public static void incoming(LivingIncomingDamageEvent e) {
         var attacker=e.getSource().getEntity();
