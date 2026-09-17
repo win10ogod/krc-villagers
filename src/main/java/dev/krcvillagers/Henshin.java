@@ -46,7 +46,8 @@ public final class Henshin {
         if (!d.active() || d.downed || d.stage>0 || d.equipped) return false;
         d.status = validateAndSetForms(v);
         if (!d.status.isEmpty()) return false;
-        for (int i=0;i<EQUIPMENT.length;i++) d.backup[i] = v.getItemBySlot(EQUIPMENT[i]);
+        CompanionEquipment.bind(v);
+        for (int i=0;i<4;i++) d.backup[i] = v.getItemBySlot(EQUIPMENT[i]);
         d.stage=1;
         v.stopSleeping(); v.getNavigation().stop();
         v.setItemSlot(EquipmentSlot.FEET, d.items.getStackInSlot(0));
@@ -84,12 +85,11 @@ public final class Henshin {
             AbilityUtil.cancelAbility(v,"",0);
             // Weapon durability and all belt components remain in the same handed-over stacks.
             d.items.setStackInSlot(0,v.getItemBySlot(EquipmentSlot.FEET));
-            d.items.setStackInSlot(6,v.getMainHandItem());
-            d.items.setStackInSlot(7,v.getOffhandItem());
-            for(int i=0;i<EQUIPMENT.length;i++) { v.setItemSlot(EQUIPMENT[i],d.backup[i]); d.backup[i]=ItemStack.EMPTY; }
+            for(int i=0;i<4;i++) { v.setItemSlot(EQUIPMENT[i],d.backup[i]); d.backup[i]=ItemStack.EMPTY; }
             FormEffects.clear(v);
         }
         d.stage=0; d.equipped=false; d.animation="";
+        v.stopUsingItem(); CompanionEquipment.bind(v);
         d.lastAxelForm="";
         v.setInvulnerable(false);
         v.getAttribute(com.kelco.kamenridercraft.world.attribute.Attributes.IS_TRANSFORMING).setBaseValue(0);

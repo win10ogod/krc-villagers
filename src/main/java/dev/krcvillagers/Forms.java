@@ -37,7 +37,7 @@ public final class Forms {
         d.items.setStackInSlot(0, candidate);
         return "";
     }
-    private static String requirements(VillagerCompanionData d, ItemStack stack, RiderDriverItem belt, RiderFormChangeItem form) {
+    static String requirements(VillagerCompanionData d, ItemStack stack, RiderDriverItem belt, RiderFormChangeItem form) {
         var req = (FormRequirements) form;
         for (Item item : req.kv$neededItems()) if (!contains(d, item)) return "message.krc_villagers.missing_items";
         for (Item item : form.needItemList) if (!contains(d, item)) return "message.krc_villagers.missing_items";

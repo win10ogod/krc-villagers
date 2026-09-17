@@ -26,9 +26,14 @@
 | Clock Up | 原 KRC 起手、淨扣 50 能量、TimeClock 真實降低時間速度；施放鎖清理，結束時恢復時間並移除自身計時項。 |
 | 時停 | Odin 識別、TimeClock 真實暫停、扣 100 能量與清理；第二名施法者不搶占，也不扣費；原有白名單保留。 |
 | 多人權限邏輯 | 兩個伺服器玩家物件分別操作：非招募者、錯誤視窗及超距離封包拒絕；招募者操作成功。 |
+| 武器保管 | 525 種已註冊劍、工具、弓弩及 KRC 槍械逐一通過原版交易結束與骨粉工作展示；實際交易預覽、空主手重載、倒地、解約單次返還、正常耐久損壞另有斷言。 |
+| 裝甲回血 | 真實 entity tick 比較基本 Gaim、Golden Ringo 與無回血的 Kuuga；驗證飽和回血、額外再生、解除後停止，以及停用 naturalRegeneration 時不透過飽和回血。 |
+| 備用形態 | 同槽 Golden／Black Ringo 同時存放；受傷選較強再生、冷卻／開關／存檔、缺少 Kachidoki 時不能直接變 Kiwami、具備前置後成功。變身中的真實選單轉移與伺服器權限檢查。 |
+| 遠程武器 | 原版弓／弩、Musou Saber、Neo GM-01 Scorpion 對實際敵人射擊命中；消耗真彈藥及耐久、保持距離、無彈藥不空生箭矢、射線友方阻擋；兩名村民的 Neo 槍械獨立冷卻與彈匣存檔。 |
+| 游泳 | 跟隨、駐守、自由生活三名村民由深水中浮起並抵達乾燥岸邊，回復空氣且沒有溺水掉血。 |
 | 原版生活 | 無戰鬥的自由生活模式恢復原版 Brain；駐守模式取得行為控制。 |
 
-這些測試共 **21 項**。初始執行結果收錄在 [測試結果摘要](test-results.md)。初始伺服器日誌保留於本機 `evidence/gametest.log`；後續自動建置的日誌由 Actions 的 `diagnostics` artifact 提供，不納入 Git 倉庫或專案原始碼 ZIP。
+這些測試共 **37 項**。1.1.0 執行結果收錄在 [測試結果摘要](test-results.md)。本次伺服器日誌保留於本機 `.work/improvements-tests.log`；後續自動建置的日誌由 Actions 的 `diagnostics` artifact 提供，不納入 Git 倉庫或專案原始碼 ZIP。
 
 ## 實機與畫面
 
@@ -36,7 +41,7 @@
 
 實機流程以真正的互動／容器封包開啟原版交易、Shift＋右鍵管理、招募、交付腰帶，並以畫面座標點擊行為按鈕。GUI 比例 3 時縮放整個容器與滑鼠座標，確認駐守選擇到達伺服器。戰鬥階段由 GH AI 自行決定技能，不以直接呼叫技能冒充自動戰鬥。
 
-測試世界使用創造模式玩家、固定位置且無 AI 的敵人，以及測試用生命和能量設定。為驗證時停，測試程式另外為同一村民交付 Odin 腰帶；此段檢查自動技能與連線客戶端，不重複測試 Odin 的拖放操作。生存模式實際收費由伺服器測試覆蓋。
+測試世界使用創造模式玩家、固定位置且無 AI 的敵人，以及測試用生命和能量設定。為驗證時停，測試程式另外為同一村民交付 Odin 腰帶；此段檢查自動技能與連線客戶端，不重複測試 Odin 的拖放操作。生存模式實際收費由伺服器測試覆蓋。1.1.0 另在真實客戶端交付兩枚同槽鎖種、按鈕開啟自動換形態、確認 Black Ringo 與回血同步，並確認 Musou Saber 遠程射擊及返還。
 
 | 證據 | 畫面 |
 | --- | --- |
@@ -53,10 +58,13 @@
 | 招募者救援 | [11-rescued-companion.png](../evidence/11-rescued-companion.png) |
 | Odin 自動時停 | [12-odin-time-stop.png](../evidence/12-odin-time-stop.png) |
 | 解約恢復村民 | [13-released-villager.png](../evidence/13-released-villager.png) |
+| 變身中交付兩枚鎖種 | [14-gaim-reserve-forms.png](../evidence/14-gaim-reserve-forms.png) |
+| 自動 Black Ringo 與回血 | [15-gaim-auto-healing.png](../evidence/15-gaim-auto-healing.png) |
+| 鎧武遠程戰鬥 | [16-gaim-ranged-combat.png](../evidence/16-gaim-ranged-combat.png) |
 
-客戶端執行結果收錄在 [測試結果摘要](test-results.md)，成功標記為 `KRC_VILLAGERS_LIVE_OK`。完整日誌保留於本機 `evidence/client-live.log`，不納入 Git 倉庫或專案原始碼 ZIP。截圖顯示外觀，技能開始、狀態清理與物品數量另有狀態斷言；時停亦檢查客戶端的 TimeClock 暫停狀態，以及解約後的客戶端恢復狀態。
+客戶端執行結果收錄在 [測試結果摘要](test-results.md)，成功標記為 `KRC_VILLAGERS_LIVE_OK`。完整日誌保留於本機 `.work/improvements-client.log`，不納入 Git 倉庫或專案原始碼 ZIP。截圖顯示外觀，技能開始、狀態清理與物品數量另有狀態斷言；時停亦檢查客戶端的 TimeClock 暫停狀態，以及解約後的客戶端恢復狀態。
 
-以上圖形客戶端證據使用 1.0.0 初始依賴組合。依賴自動更新的發布條件為編譯及全部伺服器 GameTest 通過，不代表逐版重跑了圖形客戶端或完整模組包遊玩。
+以上圖形客戶端證據使用 1.1.0 的鎖定依賴組合。依賴自動更新的發布條件為編譯及全部伺服器 GameTest 通過，不代表逐版重跑了圖形客戶端或完整模組包遊玩。
 
 ## 版本相容處理
 
@@ -70,8 +78,8 @@
 
 ## 驗證範圍
 
-- 593 條腰帶的覆蓋是**基本裝甲裝備／解除**，不是逐一渲染所有衍生形態。完整視覺實測為 Kuuga 與 Odin；資料驅動的形態連動另有 W／Accel 測試。
+- 593 條腰帶的覆蓋是**基本裝甲裝備／解除**，不是逐一渲染所有衍生形態。完整視覺實測為 Kuuga、Odin 與 Gaim／Black Ringo；資料驅動的形態連動另有 W／Accel 測試。
 - 多人檢查覆蓋伺服器權限與真實客戶端封包；未同時啟動兩個圖形客戶端，也未在原有完整大型模組包逐項遊玩。
 - `RiderFormChangeItem` 的標準相容、前置物品、前置形態、重設、連動槽位與原 KRC 腰帶更新路徑均有接入。若其他附屬模組把新形態邏輯完全寫在玩家專用 `Item.use` 覆寫中，需為該項新增村民適配。
-- 一般主手武器走村民近戰；KRC 形態的炮擊／格林技能走原技能彈體。本版沒有通用「任意玩家武器右鍵使用」代理。
+- 遠程接入原版 BowItem／CrossbowItem、KRC BaseBlasterItem 的已實作彈種，以及 NeoBaseBlasterItem 的原生 fire 路徑；其他主手武器仍可近戰。這些適配未使用假玩家；其他附屬模組若有獨立的玩家專用右鍵邏輯，需按其介面另行接入。
 - 測試載入時，GH 內針對未安裝 LittleJoys／Super Sentai 的配方，以及 KRC 部分原始配方會產生 `RecipeManager` 錯誤訊息；相關資源 ID 和原始錯誤保留在日誌。它們未阻止本次遊戲載入與功能驗證。

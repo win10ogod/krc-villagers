@@ -6,6 +6,11 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "FormRequirements",
+    "TradeDisplayMixin",
+    "FarmingDisplayMixin",
+    "ProjectileWeaponAccess",
+    "NeoBlasterAccess",
+    "BlasterAccess",
     "VillagerBrainMixin",
     "KickAccess",
     "TimeStopAccess",

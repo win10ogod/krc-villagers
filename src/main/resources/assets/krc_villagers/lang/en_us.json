@@ -13,13 +13,13 @@
   "screen.krc_villagers.rescue": "Rescue",
   "screen.krc_villagers.release": "Release & return",
   "screen.krc_villagers.belt": "Belt",
-  "screen.krc_villagers.forms": "Form slots 1 → 5",
+  "screen.krc_villagers.forms": "Initial forms 1 → 5",
   "screen.krc_villagers.hands": "Main / off hand",
-  "screen.krc_villagers.supplies": "Required items & supplies",
+  "screen.krc_villagers.supplies": "Reserve forms / ammo / supplies",
   "screen.krc_villagers.skills": "Automatic skills",
   "screen.krc_villagers.stats": "HP %s / %s   Energy %s",
-  "screen.krc_villagers.unequip_hint": "Select Revert before changing equipment.",
-  "screen.krc_villagers.equipment_hint": "Hand over a belt and matching form items. Right-click to trade.",
+  "screen.krc_villagers.unequip_hint": "Reserves remain editable. Dehenshin to change equipped gear.",
+  "screen.krc_villagers.equipment_hint": "Store extra forms in reserves; bows and crossbows need ammo.",
   "message.krc_villagers.no_belt": "Hand over a KRC belt first.",
   "message.krc_villagers.incompatible": "This form conflicts with the belt or another form.",
   "message.krc_villagers.wrong_slot": "Put the form item in its corresponding slot.",
@@ -56,5 +56,8 @@
   "screen.krc_villagers.rescue_cost": "Rescue for %s emeralds; restore 50%% health.",
   "screen.krc_villagers.cooldown": "Ability cooldown: %s ticks",
   "screen.krc_villagers.mode_hint": "Follow you, guard this position, or resume villager work and rest.",
-  "screen.krc_villagers.mob_skills_disabled": "Generic Henshin mob skills are disabled in its config."
+  "screen.krc_villagers.mob_skills_disabled": "Generic Henshin mob skills are disabled in its config.",
+  "screen.krc_villagers.auto_forms.on": "Auto forms: ON",
+  "screen.krc_villagers.auto_forms.off": "Auto forms: OFF",
+  "screen.krc_villagers.auto_forms.hint": "Choose entrusted forms for health, enemies and terrain. Include prerequisite items in reserves."
 }

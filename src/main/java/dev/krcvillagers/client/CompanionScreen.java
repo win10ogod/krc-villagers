@@ -12,7 +12,7 @@ import java.util.*;
 public final class CompanionScreen extends AbstractContainerScreen<CompanionMenu> {
     private List<String> skills=List.of("rider_punch","rider_kick");
     private final List<Button> ownedButtons=new ArrayList<>();
-    private Button recruit,rescue,release;
+    private Button recruit,rescue,release,autoForms;
     private int skillOffset;
     private float uiScale=1;
     private final Map<String,Button> skillButtons=new LinkedHashMap<>();
@@ -31,6 +31,8 @@ public final class CompanionScreen extends AbstractContainerScreen<CompanionMenu
         }
         rescue=button("rescue",198,110,89,()->send("rescue",""));
         release=button("release",291,110,89,()->send("release",""));
+        autoForms=button("auto_forms.on",60,78,116,()->send("auto_forms",""));
+        autoForms.setTooltip(net.minecraft.client.gui.components.Tooltip.create(tr("auto_forms.hint")));
         int y=154;
         for(String skill:skills.stream().skip(skillOffset).limit(5).toList()){
             var b=addRenderableWidget(Button.builder(Component.translatable("skill.krc_villagers."+skill),btn->send("toggle",skill)).bounds(leftPos+198,topPos+y,182,18).build());
@@ -42,6 +44,8 @@ public final class CompanionScreen extends AbstractContainerScreen<CompanionMenu
     public void updateSkills(List<String> next){if(!skills.equals(next)){skills=List.copyOf(next);skillOffset=Math.min(skillOffset,Math.max(0,skills.size()-5));rebuildWidgets();}}
     @Override protected void containerTick(){
         super.containerTick();boolean owner=menu.values.get(0)==1;
+        autoForms.active=owner&&menu.values.get(4)==0;
+        autoForms.setMessage(tr(menu.values.get(12)==1?"auto_forms.on":"auto_forms.off"));
         recruit.active=menu.values.get(0)==0&&!menu.villager.isBaby();
         recruit.setMessage(menu.values.get(0)==0?Component.translatable("screen.krc_villagers.recruit_cost",menu.values.get(8)):tr(owner?"owner":"other_owner"));
         for(var b:ownedButtons)b.active=owner&&menu.values.get(4)==0;

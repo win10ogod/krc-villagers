@@ -39,7 +39,7 @@ public final class LiveClient {
     private static volatile boolean serverSetup;
     private static volatile String ability="";
     private static int captures;
-    private static volatile boolean observedTimeStop, verifiedCleanup;
+    private static volatile boolean observedTimeStop, verifiedCleanup, verifiedImprovements;
     @SubscribeEvent public static void tick(ClientTickEvent.Post e){
         if(!Boolean.getBoolean("krcvillagers.uiSmoke"))return;
         var mc=Minecraft.getInstance();
@@ -162,7 +162,67 @@ public final class LiveClient {
             case 16 -> {
                 if(!verifiedCleanup)return;
                 require(!com.example.generichenshin.compat.TimeclockCompat.isTimePaused(mc.level),"client TimeClock state restored after release");
-                capture("13-released-villager");System.out.println("KRC_VILLAGERS_LIVE_OK: real trade, Shift interaction, recruitment, equipment, scaled mouse controls, full armor, GH automatic punch and kick, rescue, Odin time stop and release verified");mc.stop();phase=17;
+                capture("13-released-villager");
+                mc.getSingleplayerServer().execute(()->{
+                    var level=mc.getSingleplayerServer().overworld();var npc=(Villager)level.getEntity(villagerId);
+                    for(var enemy:level.getEntitiesOfClass(net.minecraft.world.entity.monster.Husk.class,npc.getBoundingBox().inflate(40)))enemy.discard();
+                    var p=level.getServer().getPlayerList().getPlayers().getFirst();
+                    p.teleportTo(.5,65,6.5);npc.setPos(.5,65,2.5);npc.setNoAi(true);npc.setTarget(null);
+                    Companions.recruit(p,npc);var d=npc.getData(KrcVillagers.COMPANION);
+                    d.autoForms=false;d.policy=VillagerCompanionData.Policy.ON;d.mode=VillagerCompanionData.Mode.GUARD;Companions.setGuard(npc);
+                    d.disabledSkills.add("rider_punch");d.disabledSkills.add("rider_kick");
+                    d.items.setStackInSlot(6,CompanionTests.item("musou_saber"));CompanionTests.equip(npc,CompanionTests.belt("sengoku_driver_gaim"));
+                    p.getInventory().setItem(2,CompanionTests.item("golden_ringo_lockseed"));p.getInventory().setItem(3,CompanionTests.item("black_ringo_lockseed"));p.inventoryMenu.broadcastChanges();
+                });next();
+            }
+            case 17 -> {
+                if(ticks<140)return;
+                mc.player.setYRot(180);mc.player.setXRot(7);
+                mc.options.keyShift.setDown(true);mc.player.input.shiftKeyDown=true;mc.player.setShiftKeyDown(true);
+                mc.player.connection.send(new ServerboundPlayerCommandPacket(mc.player,ServerboundPlayerCommandPacket.Action.PRESS_SHIFT_KEY));
+                mc.gameMode.interact(mc.player,v,InteractionHand.MAIN_HAND);next();
+            }
+            case 18 -> {
+                require(mc.screen instanceof CompanionScreen,"Gaim transformed management opens");
+                var menu=((CompanionScreen)mc.screen).getMenu();require(menu.values.get(5)==1,"Gaim armor equipped on connected client");
+                mc.gameMode.handleInventoryMouseClick(menu.containerId,46,0,ClickType.QUICK_MOVE,mc.player);
+                mc.gameMode.handleInventoryMouseClick(menu.containerId,47,0,ClickType.QUICK_MOVE,mc.player);next();
+            }
+            case 19 -> {
+                var menu=((CompanionScreen)mc.screen).getMenu();
+                require(menu.getSlot(8).getItem().is(CompanionTests.item("golden_ringo_lockseed").getItem())&&menu.getSlot(9).getItem().is(CompanionTests.item("black_ringo_lockseed").getItem()),"two same-slot forms transferred while transformed");
+                capture("14-gaim-reserve-forms");
+                mc.getSingleplayerServer().execute(()->((Villager)mc.getSingleplayerServer().overworld().getEntity(villagerId)).setHealth(5));
+                press(Component.translatable("screen.krc_villagers.auto_forms.off").getString());next();
+            }
+            case 20 -> {
+                if(ticks<180)return;
+                var menu=((CompanionScreen)mc.screen).getMenu();require(menu.values.get(12)==1,"auto form switch enabled through real mouse control");
+                require(com.kelco.kamenridercraft.item.base_items.RiderDriverItem.getFormItem(menu.getSlot(0).getItem(),1)==CompanionTests.item("black_ringo_lockseed").getItem(),"Gaim automatically selected Black Ringo on connected client");
+                require(menu.values.get(10)>50,"Gaim armor healed after automatic form change");
+                capture("15-gaim-auto-healing");mc.player.closeContainer();
+                mc.options.keyShift.setDown(false);mc.player.input.shiftKeyDown=false;mc.player.setShiftKeyDown(false);
+                mc.player.connection.send(new ServerboundPlayerCommandPacket(mc.player,ServerboundPlayerCommandPacket.Action.RELEASE_SHIFT_KEY));
+                mc.getSingleplayerServer().execute(()->{
+                    var level=mc.getSingleplayerServer().overworld();var npc=(Villager)level.getEntity(villagerId);npc.setNoAi(false);
+                    var enemy=EntityType.HUSK.create(level);enemy.setPos(.5,65,-8.5);enemy.setNoAi(true);enemy.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MAX_HEALTH).setBaseValue(500);enemy.setHealth(500);level.addFreshEntity(enemy);npc.setTarget(enemy);
+                });next();
+            }
+            case 21 -> {
+                if(ticks<140)return;
+                capture("16-gaim-ranged-combat");
+                mc.getSingleplayerServer().execute(()->{
+                    var level=mc.getSingleplayerServer().overworld();var npc=(Villager)level.getEntity(villagerId);
+                    require(npc.getMainHandItem().is(CompanionTests.item("musou_saber").getItem())&&npc.getMainHandItem().getDamageValue()>0,"Gaim retains and fires Musou Saber");
+                    var enemies=level.getEntitiesOfClass(net.minecraft.world.entity.monster.Husk.class,npc.getBoundingBox().inflate(24));
+                    require(enemies.stream().anyMatch(enemy->enemy.getHealth()<500),"native ranged projectile hit in integrated world");
+                    var p=level.getServer().getPlayerList().getPlayers().getFirst();Companions.release(p,npc);
+                    require(p.getInventory().countItem(CompanionTests.item("musou_saber").getItem())==1,"fired weapon returned once on release");verifiedImprovements=true;
+                });next();
+            }
+            case 22 -> {
+                if(!verifiedImprovements)return;
+                System.out.println("KRC_VILLAGERS_LIVE_OK: trade, Shift UI, recruitment, scaled controls, armor, GH punch/kick, rescue, Odin time stop, Gaim reserve forms, auto switching, healing, native ranged combat and exact equipment returns verified");mc.stop();phase=23;
             }
             default -> {}
         }

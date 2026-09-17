@@ -13,13 +13,13 @@
   "screen.krc_villagers.rescue": "救援",
   "screen.krc_villagers.release": "解約還裝備",
   "screen.krc_villagers.belt": "腰帶",
-  "screen.krc_villagers.forms": "形態槽 1 → 5",
+  "screen.krc_villagers.forms": "起始形態 1 → 5",
   "screen.krc_villagers.hands": "主手／副手",
-  "screen.krc_villagers.supplies": "必要道具與補給",
+  "screen.krc_villagers.supplies": "備用形態／彈藥與補給",
   "screen.krc_villagers.skills": "自動施放技能",
   "screen.krc_villagers.stats": "生命 %s / %s  能量 %s",
-  "screen.krc_villagers.unequip_hint": "調整裝備前請先選「保持解除」。",
-  "screen.krc_villagers.equipment_hint": "交付腰帶及對應槽位的形態道具；普通右鍵可交易。",
+  "screen.krc_villagers.unequip_hint": "變身中仍可補充備用形態與彈藥；換裝先保持解除。",
+  "screen.krc_villagers.equipment_hint": "備用欄可放多個同槽形態；弓與弩需要箭矢。",
   "message.krc_villagers.no_belt": "請先交付 KRC 腰帶。",
   "message.krc_villagers.incompatible": "形態與腰帶或其他形態不相容。",
   "message.krc_villagers.wrong_slot": "請將道具放進它對應的形態槽位。",
@@ -56,5 +56,8 @@
   "screen.krc_villagers.rescue_cost": "花費 %s 顆綠寶石，恢復 50%% 生命。",
   "screen.krc_villagers.cooldown": "技能冷卻：%s 刻",
   "screen.krc_villagers.mode_hint": "跟隨玩家、駐守目前位置，或恢復村民工作與作息。",
-  "screen.krc_villagers.mob_skills_disabled": "通用變身設定已停用生物騎士拳／踢。"
+  "screen.krc_villagers.mob_skills_disabled": "通用變身設定已停用生物騎士拳／踢。",
+  "screen.krc_villagers.auto_forms.on": "自動換形態：開",
+  "screen.krc_villagers.auto_forms.off": "自動換形態：關",
+  "screen.krc_villagers.auto_forms.hint": "依生命、敵人與環境選擇已交付的形態；前置道具也需放入備用欄。"
 }

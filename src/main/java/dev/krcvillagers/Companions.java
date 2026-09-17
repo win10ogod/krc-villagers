@@ -43,6 +43,7 @@ public final class Companions {
         d.owner=p.getUUID(); d.mode=VillagerCompanionData.Mode.FOLLOW;
         v.getAttribute(com.kelco.kamenridercraft.world.attribute.Attributes.ABILITY_METER).setBaseValue(
                 v.getAttribute(com.kelco.kamenridercraft.world.attribute.Attributes.MAX_ABILITY_METER).getValue());
+        CompanionEquipment.bind(v);
         setGuard(v); v.setPersistenceRequired(); Protocol.sync(v); return true;
     }
     public static void setGuard(Villager v) {
@@ -53,6 +54,7 @@ public final class Companions {
         if(!owns(p,v) || v.getData(KrcVillagers.COMPANION).downed) return;
         Henshin.end(v);
         var d=v.getData(KrcVillagers.COMPANION);
+        CompanionEquipment.release(v);
         for(int i=0;i<d.items.getSlots();i++) { var item=d.items.extractItem(i,Integer.MAX_VALUE,false); if(!p.getInventory().add(item)) p.drop(item,false); }
         d.owner=null; d.disabledSkills.clear(); v.setTarget(null); v.getNavigation().stop();
         Protocol.sync(v); p.closeContainer();
@@ -71,20 +73,26 @@ public final class Companions {
     public static boolean controlBrain(Villager v) {
         if(!active(v)) return false;
         var d=v.getData(KrcVillagers.COMPANION);
-        return d.downed || d.stage>0 || v.getTarget()!=null || d.mode!=VillagerCompanionData.Mode.LIFE;
+        return d.downed || d.stage>0 || v.getTarget()!=null || d.mode!=VillagerCompanionData.Mode.LIFE
+                || v.isInWater() || v.isInLava() || d.shore != null;
     }
     public static void tick(Villager v) {
         if(!active(v)||!(v.level() instanceof ServerLevel level)) return;
         var d=v.getData(KrcVillagers.COMPANION);
+        CompanionEquipment.bind(v);
+        boolean swimming = WaterSafety.tick(v);
         if(v.onGround() && !v.isInLava() && !v.isInWater() && level.getBlockState(v.blockPosition().below()).isSolid()) d.lastSafe=v.blockPosition();
         if(d.downed) {
             v.setTarget(null); v.getNavigation().stop(); v.setDeltaMovement(0,v.getDeltaMovement().y,0); v.clearFire();
             if(v.getY()<level.getMinBuildHeight() && d.lastSafe!=null) v.teleportTo(d.lastSafe.getX()+0.5,d.lastSafe.getY(),d.lastSafe.getZ()+0.5);
             return;
         }
-        Henshin.tick(v); Skills.tick(v);
+        Henshin.tick(v);
+        Skills.tick(v);
+        if(v.tickCount%10==0) AutoForms.tick(v);
+        if (swimming) { RangedCombat.stop(v); return; }
         if(v.tickCount%10==0) Protocol.sync(v);
-        if(v.getTradingPlayer()!=null) { v.getNavigation().stop(); return; }
+        if(v.getTradingPlayer()!=null) { RangedCombat.stop(v); v.getNavigation().stop(); return; }
         var owner=level.getServer().getPlayerList().getPlayer(d.owner);
         if(d.mode==VillagerCompanionData.Mode.FOLLOW && owner==null && !d.offlineGuard) { setGuard(v); d.offlineGuard=true; }
         if(owner!=null) d.offlineGuard=false;
@@ -96,18 +104,23 @@ public final class Companions {
             v.setTarget(target);
         }
         if(target!=null) d.lastCombat=level.getGameTime();
-        boolean want=d.policy==VillagerCompanionData.Policy.ON || d.policy==VillagerCompanionData.Policy.AUTO && target!=null;
+        else RangedCombat.stop(v);
+        boolean recovering=AutoForms.needsRecovery(v);
+        boolean want=d.policy==VillagerCompanionData.Policy.ON || d.policy==VillagerCompanionData.Policy.AUTO && (target!=null || recovering);
         if(want && !d.equipped && d.stage==0 && v.tickCount%20==0) Henshin.begin(v);
-        if((d.policy==VillagerCompanionData.Policy.OFF || d.policy==VillagerCompanionData.Policy.AUTO && target==null && level.getGameTime()-d.lastCombat>=Settings.CALM_TICKS.get()) && (d.equipped||d.stage>0)) Henshin.end(v);
+        if((d.policy==VillagerCompanionData.Policy.OFF || d.policy==VillagerCompanionData.Policy.AUTO && target==null && !recovering && level.getGameTime()-d.lastCombat>=Settings.CALM_TICKS.get()) && (d.equipped||d.stage>0)) Henshin.end(v);
         if(d.stage>0) { v.getNavigation().stop(); return; }
         if(target!=null) {
             v.stopSleeping();
             v.getLookControl().setLookAt(target,30,30);
             v.lookAt(net.minecraft.commands.arguments.EntityAnchorArgument.Anchor.EYES,target.getEyePosition());
             String used=v.getData(AttachmentTypes.USED_ABILITY);
-            if(!used.isEmpty() && !used.equals("clock_up")) { v.getNavigation().stop(); return; }
+            if(!used.isEmpty() && !used.equals("clock_up")) { RangedCombat.stop(v); v.getNavigation().stop(); return; }
+            if(RangedCombat.tick(v,target)) return;
             double reach=2.3+target.getBbWidth()*0.5;
-            if(v.distanceToSqr(target)>reach*reach) { if(v.tickCount%5==0) v.getNavigation().moveTo(target,1.15); }
+            if(v.distanceToSqr(target)>reach*reach) {
+                if(v.tickCount%5==0 && level.getFluidState(target.blockPosition()).isEmpty()) v.getNavigation().moveTo(target,1.15);
+            }
             else {
                 v.getNavigation().stop();
                 if(v.tickCount>=d.nextAttack && v.hasLineOfSight(target)) {
@@ -116,6 +129,7 @@ public final class Companions {
                 }
             }
         } else if(d.mode!=VillagerCompanionData.Mode.LIFE && v.tickCount%10==0) {
+            RangedCombat.stop(v);
             if(d.mode==VillagerCompanionData.Mode.FOLLOW && owner!=null && owner.level()==level) {
                 double distance=v.distanceToSqr(owner);
                 if(distance>32*32) teleportNear(v,owner.blockPosition());
@@ -137,7 +151,7 @@ public final class Companions {
         for(int x=-2;x<=2;x++) for(int z=-2;z<=2;z++) {
             if(Math.abs(x)<2&&Math.abs(z)<2) continue;
             var p=center.offset(x,0,z);
-            if(!v.level().hasChunkAt(p) || !v.level().getBlockState(p.below()).isSolid() || !v.level().getFluidState(p).isEmpty()) continue;
+            if(!WaterSafety.dry(v,p)) continue;
             var box=v.getBoundingBox().move(p.getX()+0.5-v.getX(),p.getY()-v.getY(),p.getZ()+0.5-v.getZ());
             if(v.level().noCollision(v,box)) { v.teleportTo(p.getX()+0.5,p.getY(),p.getZ()+0.5); v.getNavigation().stop(); return; }
         }

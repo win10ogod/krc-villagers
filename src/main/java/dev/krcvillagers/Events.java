@@ -48,11 +48,10 @@ public final class Events {
             Skills.cleanup(v);
             com.kelco.kamenridercraft.abilities.AbilityUtil.cancelAbility(v, "", 0);
             if (d.equipped || d.stage > 0) {
-                // Entity equipment and the attachment are deserialized independently. Rebind escrow
-                // to the worn stacks so native belt mutations and weapon wear survive the next save.
+                // The belt receives native component updates; hands belong to the inventory.
                 d.items.setStackInSlot(0, v.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.FEET));
-                d.items.setStackInSlot(6, v.getMainHandItem()); d.items.setStackInSlot(7, v.getOffhandItem());
             }
+            CompanionEquipment.bind(v);
         }
     }
     @SubscribeEvent public static void leave(EntityLeaveLevelEvent e) {

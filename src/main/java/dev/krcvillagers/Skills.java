@@ -36,7 +36,7 @@ public final class Skills {
     public static boolean idle(Villager v) { return v.getData(AttachmentTypes.USED_ABILITY).isEmpty() && v.getData(AttachmentTypes.ABILITY_COOLDOWN)==0; }
     public static boolean canStart(Villager v,String skill) {
         var d=v.getData(KrcVillagers.COMPANION);
-        return Henshin.ready(v) && idle(v) && d.enabled(skill) && v.getTarget()!=null
+        return Henshin.ready(v) && !v.isInWater() && !v.isInLava() && idle(v) && d.enabled(skill) && v.getTarget()!=null
                 && Companions.hostile(v,v.getTarget()) && v.hasLineOfSight(v.getTarget()) && available(v).contains(skill);
     }
     public static boolean start(Villager v,String skill) {

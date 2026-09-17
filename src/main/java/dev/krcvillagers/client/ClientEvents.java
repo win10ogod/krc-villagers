@@ -22,6 +22,7 @@ public final class ClientEvents {
         var d=v.getData(KrcVillagers.COMPANION);var n=p.state();
         d.owner=n.hasUUID("Owner")?n.getUUID("Owner"):null;d.downed=n.getBoolean("Downed");d.equipped=n.getBoolean("Equipped");d.stage=n.getInt("Stage");
         d.mode=VillagerCompanionData.Mode.valueOf(n.getString("Mode"));d.policy=VillagerCompanionData.Policy.valueOf(n.getString("Policy"));d.status=n.getString("Status");
+        d.autoForms=n.getBoolean("AutoForms");
         d.disabledSkills.clear();n.getList("Disabled",8).forEach(t->d.disabledSkills.add(t.getAsString()));
         if(Minecraft.getInstance().screen instanceof CompanionScreen screen&&screen.getMenu().villager==v)
             screen.updateSkills(n.getList("Skills",8).stream().map(t->t.getAsString()).toList());

@@ -19,6 +19,14 @@ public final class VillagerCompanionData implements INBTSerializable<CompoundTag
     public BlockPos guard = BlockPos.ZERO;
     public String guardDimension = "minecraft:overworld";
     public boolean downed, equipped;
+    public boolean handsManaged, autoForms = true;
+    public final ItemStack[] originalHands = {ItemStack.EMPTY, ItemStack.EMPTY};
+    public long nextFormSwitch;
+    public int rangedCharge, rangedCooldown;
+    public ItemStack rangedWeapon = ItemStack.EMPTY;
+    public BlockPos shore;
+    public int saturationHealTicks;
+    public long lastSaturationTick = Long.MIN_VALUE;
     public int stage, nextAttack, skillCursor, timeCharges;
     public long lastCombat, timeLockUntil;
     public int timeStopTicks;
@@ -42,7 +50,12 @@ public final class VillagerCompanionData implements INBTSerializable<CompoundTag
     public void toggle(String skill) { if (!disabledSkills.remove(skill)) disabledSkills.add(skill); }
     @Override public CompoundTag serializeNBT(HolderLookup.Provider registries) {
         var n = new CompoundTag();
-        n.putInt("Version", 1);
+        n.putInt("Version", 2);
+        n.putBoolean("HandsManaged", handsManaged); n.putBoolean("AutoForms", autoForms);
+        n.putLong("NextFormSwitch", nextFormSwitch);
+        var hands = new ListTag();
+        for (var stack : originalHands) hands.add(stack.saveOptional(registries));
+        n.put("OriginalHands", hands);
         if (owner != null) n.putUUID("Owner", owner);
         n.putString("Mode", mode.name()); n.putString("Policy", policy.name());
         n.putLong("Guard", guard.asLong()); n.putString("Dimension", guardDimension);
@@ -71,6 +84,11 @@ public final class VillagerCompanionData implements INBTSerializable<CompoundTag
     }
     @Override public void deserializeNBT(HolderLookup.Provider registries, CompoundTag n) {
         owner = n.hasUUID("Owner") ? n.getUUID("Owner") : null;
+        handsManaged = n.getBoolean("HandsManaged");
+        autoForms = !n.contains("AutoForms") || n.getBoolean("AutoForms");
+        nextFormSwitch = n.getLong("NextFormSwitch");
+        var hands = n.getList("OriginalHands", 10);
+        for (int i = 0; i < 2; i++) originalHands[i] = i < hands.size() ? ItemStack.parseOptional(registries, hands.getCompound(i)) : ItemStack.EMPTY;
         try { mode = Mode.valueOf(n.getString("Mode")); } catch (IllegalArgumentException ignored) { mode = Mode.FOLLOW; }
         try { policy = Policy.valueOf(n.getString("Policy")); } catch (IllegalArgumentException ignored) { policy = Policy.AUTO; }
         guard = BlockPos.of(n.getLong("Guard")); guardDimension = n.getString("Dimension");

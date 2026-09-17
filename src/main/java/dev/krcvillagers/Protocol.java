@@ -31,7 +31,7 @@ public final class Protocol {
         public Type<? extends CustomPacketPayload> type(){return TYPE;}
     }
     public static void register(RegisterPayloadHandlersEvent event) {
-        var registrar=event.registrar("1");
+        var registrar=event.registrar("2");
         registrar.playToServer(Action.TYPE,Action.CODEC,(packet,context)->context.enqueueWork(()->{
             if(context.player() instanceof ServerPlayer p) handle(p,packet);
         }));
@@ -60,6 +60,7 @@ public final class Protocol {
                 case "rescue" -> d.status=Companions.rescue(p,v)?"message.krc_villagers.rescued":"message.krc_villagers.cannot_rescue";
                 case "release" -> Companions.release(p,v);
                 case "toggle" -> { if(Skills.available(v).contains(packet.value)) d.toggle(packet.value); }
+                case "auto_forms" -> d.autoForms = !d.autoForms;
                 default -> { return; }
             }
         } else return;
@@ -70,6 +71,7 @@ public final class Protocol {
         if(d.owner!=null)n.putUUID("Owner",d.owner);
         n.putBoolean("Downed",d.downed);n.putBoolean("Equipped",d.equipped);n.putInt("Stage",d.stage);
         n.putString("Mode",d.mode.name());n.putString("Policy",d.policy.name());n.putString("Status",d.status);
+        n.putBoolean("AutoForms",d.autoForms);
         var skills=new ListTag(); Skills.available(v).forEach(s->skills.add(StringTag.valueOf(s))); n.put("Skills",skills);
         var disabled=new ListTag(); d.disabledSkills.forEach(s->disabled.add(StringTag.valueOf(s)));n.put("Disabled",disabled);
         return n;
