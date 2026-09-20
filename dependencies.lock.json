@@ -20,18 +20,18 @@
       }
     },
     {
-      "path": "generic_henshin-cf8893780.jar",
-      "sha256": "a2a75fbb94dedb26846118bc242979467b2eb8b5bd187ed17c1e3dec10ff1731",
+      "path": "generic_henshin-cf8929723.jar",
+      "sha256": "638f70f5b6ed511d568d6558a825ce80f8d5b7cbc712d593b2e9bc98aa648b2b",
       "modid": "generic_henshin",
       "version": "0.1.139",
       "license": "WTFPL",
       "project": "https://www.curseforge.com/minecraft/mc-mods/generic-henshin",
-      "source_url": "https://www.curseforge.com/minecraft/mc-mods/generic-henshin/files/8893780",
-      "download_url": "https://edge.forgecdn.net/files/8893/780/generic_henshin-0.1.139-littlejoys-v316-kickmode-icon-bladesfix.jar",
+      "source_url": "https://www.curseforge.com/minecraft/mc-mods/generic-henshin/files/8929723",
+      "download_url": "https://edge.forgecdn.net/files/8929/723/generic_henshin-0.1.139-littlejoys-v431-blade-settle.jar",
       "update": {
         "provider": "curseforge",
         "project_id": 1668781,
-        "file_id": 8893780,
+        "file_id": 8929723,
         "channel": "release"
       }
     },
