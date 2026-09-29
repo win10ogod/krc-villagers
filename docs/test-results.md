@@ -1,3 +1,41 @@
+# 1.3.0 測試結果摘要
+
+驗證日期：2026-09-29。Minecraft 1.21.1、NeoForge 21.1.244、Java 21、KRC 1.1.4、GH 0.1.139（CurseForge 8929723／v431）、GeckoLib 4.9.3；完整依賴見 `dependencies.lock.json`。
+
+```bash
+python3 -m unittest discover -s scripts/tests -v
+./gradlew --no-daemon --console=plain build runGameTestServer
+xvfb-run -a -s '-screen 0 1280x800x24' ./gradlew --no-daemon --console=plain runClient -PuiSmoke
+```
+
+實際結果：18 項自動化測試、51 項 GameTest 通過。包括原有腰帶、技能、武器、游泳與按鍵回歸，以及下列新增規則：
+
+- 兩位玩家各自從 16 起算；第一位依序扣 16、20、24，解約不重置。失敗不計次、創造免費但計次；UUID 紀錄序列化保留，選單取得玩家自己的價格。
+- 隨機倒地期限落在 3600～6000 刻。本次實際等待 **4560 刻**後由 entity tick 自動站起；期限前保持倒地且不吃食物。重載保留期限，舊救援封包無法提前恢復或扣款。
+- 麵包一次消耗一份、回復 5 點生命，間隔 100 刻，滿血不再吃；手持武器保留。湯、金蘋果與蜂蜜的容器／原生效果亦通過檢查。
+- 玩家近戰、其他玩家及玩家箭矢不能傷害已招募村民；普通村民和敵怪傷害照常。移動速度減少 25%，重複更新不疊加，解約恢復。
+- Musou Saber 和 Neo GM-01 Scorpion 的射擊間隔至少 20 刻，換槍不能跳過，射擊期限存檔保留。
+
+```text
+All 51 required tests passed :)
+AUTO_RECOVERY_WAIT_VERIFIED 4560 ticks
+LIVE_CHECK 3 to 5 minute recovery countdown reaches client
+LIVE_CHECK server charged exactly 24 emeralds
+LIVE_CHECK injured villager consumes one transferred bread
+LIVE_CHECK food heals 5 HP while keeping weapon
+LIVE_CHECK food heals at intervals and stops when full
+LIVE_CHECK connected player attack cannot damage recruited villager
+KRC_VILLAGERS_BALANCE_OK: progressive recruitment, food consumption/healing and player protection verified
+KRC_VILLAGERS_LIVE_OK
+BUILD SUCCESSFUL in 2m 54s
+```
+
+圖形客戶端完整流程包含原有戰鬥、回血形態、時停、物品返還與改鍵，以及生存模式第三次招募、交付食物與武器、食物消耗和玩家攻擊封包。倒地 UI 先驗證真實 3～5 分鐘的剩餘時間，再僅將此圖形測試場景的期限提前，檢查恢復同步；完整等待由上方 GameTest 驗證。
+
+24 張畫面見 [驗證報告](verification.md)。本機日誌為 `.work/balance-tests.log`、`.work/balance-client.log`、`.work/balance-automation.log`。GameTest 與圖形測試程式不包含在正式 JAR；測試世界及日誌不納入專案 ZIP。
+
+---
+
 # 1.2.0 測試結果摘要
 
 驗證日期：2026-09-17。Minecraft 1.21.1、NeoForge 21.1.244、Java 21、KRC 1.1.4、GH 0.1.139（CurseForge 8893780）、GeckoLib 4.9.3；完整檔案與 SHA-256 見 `dependencies.lock.json`。

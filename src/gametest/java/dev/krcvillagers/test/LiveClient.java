@@ -121,10 +121,15 @@ public final class LiveClient {
             }
             case 12 -> {
                 require(mc.screen instanceof CompanionScreen,"downed management opens");
-                press(Component.translatable("screen.krc_villagers.rescue").getString());next();
+                var menu=((CompanionScreen)mc.screen).getMenu();
+                require(menu.values.get(9)>=170&&menu.values.get(9)<=300,"3 to 5 minute recovery countdown reaches client");
+                require(mc.screen.children().stream().anyMatch(w->w instanceof Button b&&!b.active&&b.getMessage().getString().startsWith(Component.translatable("screen.krc_villagers.recovery_time","","").getString().split(":")[0])),"recovery countdown is not an emerald rescue button");
+                capture("21-downed-recovery-countdown");
+                // The dedicated GameTest waits out the real deadline. Advance only this UI fixture.
+                mc.getSingleplayerServer().execute(()->{var npc=(Villager)mc.getSingleplayerServer().overworld().getEntity(villagerId);npc.getData(KrcVillagers.COMPANION).recoverAt=npc.level().getGameTime()+10;});next();
             }
             case 13 -> {
-                require(((CompanionScreen)mc.screen).getMenu().values.get(4)==0,"owner rescue confirmed by server");
+                require(((CompanionScreen)mc.screen).getMenu().values.get(4)==0,"automatic recovery reaches connected client");
                 capture("11-rescued-companion");mc.player.closeContainer();
                 mc.options.keyShift.setDown(false);mc.player.input.shiftKeyDown=false;mc.player.setShiftKeyDown(false);
                 mc.player.connection.send(new ServerboundPlayerCommandPacket(mc.player,ServerboundPlayerCommandPacket.Action.RELEASE_SHIFT_KEY));
@@ -217,9 +222,11 @@ public final class LiveClient {
                 });next();
             }
             case 22 -> {
-                if(!verifiedImprovements||!KeyBindingsLive.tick(v))return;
+                if(!verifiedImprovements)return;
+                if(!Boolean.getBoolean("krcvillagers.keysOnly")&&!BalanceLive.tick(v))return;
+                if(!KeyBindingsLive.tick(v))return;
                 if(Boolean.getBoolean("krcvillagers.keysOnly"))System.out.println("KRC_VILLAGERS_KEYS_OK: native keyboard/mouse rebinding, persistence, unbinding, reset and vanilla interactions verified");
-                else System.out.println("KRC_VILLAGERS_LIVE_OK: trade, Shift UI, recruitment, scaled controls, armor, GH punch/kick, rescue, Odin time stop, Gaim reserve forms, auto switching, healing, native ranged combat, exact equipment returns and configurable keyboard/mouse shortcuts verified");mc.stop();phase=23;
+                else System.out.println("KRC_VILLAGERS_LIVE_OK: trade, Shift UI, recruitment, scaled controls, armor, GH punch/kick, automatic recovery, Odin time stop, Gaim reserve forms, auto switching, healing, native ranged combat, exact equipment returns and configurable keyboard/mouse shortcuts verified");mc.stop();phase=23;
             }
             default -> {}
         }
@@ -229,7 +236,7 @@ public final class LiveClient {
         var mc=Minecraft.getInstance();System.out.println("LIVE_KEY_EVENT key="+event.getKey()+" action="+event.getAction()+" target="+(mc.hitResult instanceof net.minecraft.world.phys.EntityHitResult hit?hit.getEntity():mc.hitResult)+" active="+dev.krcvillagers.client.CompanionKeys.MANAGE.isActiveAndMatches(com.mojang.blaze3d.platform.InputConstants.getKey(event.getKey(),event.getScanCode()))+" screen="+mc.screen);
     }
     private static void next(){phase++;ticks=0;}
-    private static void press(String label){
+    static void press(String label){
         var screen=Minecraft.getInstance().screen;
         var b=screen.children().stream().filter(w->w instanceof Button button&&button.getMessage().getString().startsWith(label)).map(w->(Button)w).findFirst().orElseThrow(()->new IllegalStateException("Missing button "+label));
         require(b.active,"button active: "+label);

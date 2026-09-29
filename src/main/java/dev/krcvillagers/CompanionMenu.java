@@ -32,7 +32,7 @@ public final class CompanionMenu extends AbstractContainerMenu {
                     case 5 -> companion.equipped ? 1 : 0;
                     case 6 -> (int)KrcCompat.getAbilityMeter(villager);
                     case 7 -> KrcCompat.getAbilityCooldown(villager);
-                    case 8 -> Settings.RECRUIT_COST.get(); case 9 -> Settings.RESCUE_COST.get();
+                    case 8 -> RecruitmentHistory.get(inventory.player).cost(inventory.player.getUUID()); case 9 -> CompanionCare.recoverySeconds(villager);
                     case 10 -> (int)(villager.getHealth() * 10); case 11 -> (int)(villager.getMaxHealth() * 10);
                     case 12 -> companion.autoForms ? 1 : 0;
                     default -> 0;

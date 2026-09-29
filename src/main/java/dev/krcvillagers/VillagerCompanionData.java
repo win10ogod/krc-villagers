@@ -22,7 +22,8 @@ public final class VillagerCompanionData implements INBTSerializable<CompoundTag
     public boolean handsManaged, autoForms = true;
     public final ItemStack[] originalHands = {ItemStack.EMPTY, ItemStack.EMPTY};
     public long nextFormSwitch;
-    public int rangedCharge, rangedCooldown;
+    public int rangedCharge;
+    public long nextRangedAttack, nextFoodHeal, recoverAt;
     public ItemStack rangedWeapon = ItemStack.EMPTY;
     public BlockPos shore;
     public int saturationHealTicks;
@@ -50,7 +51,8 @@ public final class VillagerCompanionData implements INBTSerializable<CompoundTag
     public void toggle(String skill) { if (!disabledSkills.remove(skill)) disabledSkills.add(skill); }
     @Override public CompoundTag serializeNBT(HolderLookup.Provider registries) {
         var n = new CompoundTag();
-        n.putInt("Version", 2);
+        n.putInt("Version", 3);
+        n.putLong("NextRangedAttack", nextRangedAttack);n.putLong("NextFoodHeal", nextFoodHeal);n.putLong("RecoverAt", recoverAt);
         n.putBoolean("HandsManaged", handsManaged); n.putBoolean("AutoForms", autoForms);
         n.putLong("NextFormSwitch", nextFormSwitch);
         var hands = new ListTag();
@@ -84,6 +86,7 @@ public final class VillagerCompanionData implements INBTSerializable<CompoundTag
     }
     @Override public void deserializeNBT(HolderLookup.Provider registries, CompoundTag n) {
         owner = n.hasUUID("Owner") ? n.getUUID("Owner") : null;
+        nextRangedAttack=n.getLong("NextRangedAttack");nextFoodHeal=n.getLong("NextFoodHeal");recoverAt=n.getLong("RecoverAt");
         handsManaged = n.getBoolean("HandsManaged");
         autoForms = !n.contains("AutoForms") || n.getBoolean("AutoForms");
         nextFormSwitch = n.getLong("NextFormSwitch");

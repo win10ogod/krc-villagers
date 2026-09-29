@@ -11,10 +11,14 @@ import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 @EventBusSubscriber(modid=KrcVillagers.ID)
 public final class Events {
+    @SubscribeEvent(priority=EventPriority.HIGHEST) public static void attack(net.neoforged.neoforge.event.entity.player.AttackEntityEvent e) {
+        if(Companions.active(e.getTarget()))e.setCanceled(true);
+    }
     @SubscribeEvent public static void tick(EntityTickEvent.Post e) { if(e.getEntity() instanceof Villager v && !v.level().isClientSide()) Companions.tick(v); }
     @SubscribeEvent(priority=EventPriority.HIGHEST) public static void incoming(LivingIncomingDamageEvent e) {
         var attacker=e.getSource().getEntity();
         if(attacker==null && e.getSource().getDirectEntity() instanceof Projectile projectile) attacker=projectile.getOwner();
+        if(attacker instanceof net.minecraft.world.entity.player.Player&&Companions.active(e.getEntity())) {e.setCanceled(true);return;}
         if(attacker instanceof Villager v && Companions.active(v) && !Companions.hostile(v,e.getEntity())) { e.setCanceled(true); return; }
         if(e.getEntity() instanceof Villager v && Companions.active(v) && (v.getData(KrcVillagers.COMPANION).downed || v.getData(KrcVillagers.COMPANION).timeStopOwned && v.getData(KrcVillagers.COMPANION).timeBullet)
                 && !e.getSource().is(net.minecraft.world.damagesource.DamageTypes.GENERIC_KILL)) e.setCanceled(true);
@@ -39,6 +43,7 @@ public final class Events {
                 d.items.setStackInSlot(0, v.getItemBySlot(net.minecraft.world.entity.EquipmentSlot.FEET));
             }
             CompanionEquipment.bind(v);
+            CompanionCare.movement(v);CompanionCare.scheduleRecovery(v);
         }
     }
     @SubscribeEvent public static void leave(EntityLeaveLevelEvent e) {

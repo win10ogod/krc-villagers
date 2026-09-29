@@ -13,14 +13,14 @@
 
 | 檢查 | 實際驗證 |
 | --- | --- |
-| 招募 | 生存模式收取 8 顆綠寶石；重複招募不再收費；幼年及不足額拒絕。 |
+| 招募 | 每位玩家依序收取 16／20／24 顆；另一位玩家仍從 16 起算。解約不重置，成功才計次，創造免費但計次；世界 SavedData 序列化保留 UUID 次數，選單讀取個別價格。 |
 | 腰帶 | 註冊表中 **593 條 RiderDriverItem 腰帶**逐一完成基本裝甲裝備及解除。 |
 | 原裝備 | 變身前的鐵頭盔恢復；交付武器的耐久損耗保留。 |
 | 存檔 | 附件資料序列化；真正的村民實體存檔、移除、重載；UUID、職業、交易及穿戴物品連結保留。 |
 | 形態 | Xtreme 連動安裝 Joker；Trial 在變更前檢查基本形態；已安裝 Trial 可再次變身；不相容的交付不會局部修改腰帶。 |
 | 形態效果 | Kuuga Mighty 的 KRC 拳擊效果可作用於村民；外部加入的較強效果在解除時保留。 |
 | 戰鬥 | 真正 entity tick 取得敵人；玩家、村民及寵物排除；友方傷害取消。 |
-| 倒地／救援 | 致命傷轉為倒地並保留實體；再次受傷不死亡；4 顆綠寶石救援到半血。 |
+| 倒地／自動恢復 | 致命傷轉為倒地；實際等待隨機 3600～6000 刻後由 entity tick 恢復半血；提前恢復、舊救援封包和食物不能跳過等待。重載保留期限；舊倒地存檔首次載入建立期限。 |
 | 騎士拳／踢 | GH 橋接開始原生 KRC 技能、單次扣能量 100／150；原技能 tick 啟動；重複施放拒絕。 |
 | 失敗施放 | 停用、未知技能與不足能量不扣費。 |
 | Clock Up | 原 KRC 起手、淨扣 50 能量、TimeClock 真實降低時間速度；施放鎖清理，結束時恢復時間並移除自身計時項。 |
@@ -31,10 +31,13 @@
 | 裝甲回血 | 真實 entity tick 比較基本 Gaim、Golden Ringo 與無回血的 Kuuga；驗證飽和回血、額外再生、解除後停止，以及停用 naturalRegeneration 時不透過飽和回血。 |
 | 備用形態 | 同槽 Golden／Black Ringo 同時存放；受傷選較強再生、冷卻／開關／存檔、缺少 Kachidoki 時不能直接變 Kiwami、具備前置後成功。變身中的真實選單轉移與伺服器權限檢查。 |
 | 遠程武器 | 原版弓／弩、Musou Saber、Neo GM-01 Scorpion 對實際敵人射擊命中；消耗真彈藥及耐久、保持距離、無彈藥不空生箭矢、射線友方阻擋；兩名村民的 Neo 槍械獨立冷卻與彈匣存檔。 |
+| 遠程射速 | Musou Saber 與 Neo GM-01 Scorpion 連續射擊的每次間隔至少 20 刻；換槍不能跳過，村民冷卻也會保存。 |
+| 食物回血 | 滿血不吃、麵包回 5 點生命、100 刻間隔、保存冷卻、武器不被替換；湯保留碗、金蘋果保留再生、蜂蜜清除中毒並保留瓶子。 |
+| 玩家誤傷與速度 | 招募者、其他玩家及玩家箭矢無法造成傷害；未招募村民與敵怪傷害維持。移速乘以 0.75，不會重複疊加，解約移除減速。 |
 | 游泳 | 跟隨、駐守、自由生活三名村民由深水中浮起並抵達乾燥岸邊，回復空氣且沒有溺水掉血。 |
 | 原版生活 | 無戰鬥的自由生活模式恢復原版 Brain；駐守模式取得行為控制。 |
 
-這些測試共 **40 項**。1.2.0 執行結果收錄在 [測試結果摘要](test-results.md)。本次伺服器日誌保留於本機 `.work/keybindings-tests.log`；後續自動建置的日誌由 Actions 的 `diagnostics` artifact 提供，不納入 Git 倉庫或專案原始碼 ZIP。
+這些測試共 **51 項**。1.3.0 執行結果收錄在 [測試結果摘要](test-results.md)。本次伺服器日誌保留於本機 `.work/balance-tests.log`；後續自動建置的日誌由 Actions 的 `diagnostics` artifact 提供，不納入 Git 倉庫或專案原始碼 ZIP。
 
 ## 實機與畫面
 
@@ -42,9 +45,11 @@
 
 實機流程以真正的互動／容器封包開啟原版交易、Shift＋右鍵管理、招募、交付腰帶，並以畫面座標點擊行為按鈕。GUI 比例 3 時縮放整個容器與滑鼠座標，確認駐守選擇到達伺服器。戰鬥階段由 GH AI 自行決定技能，不以直接呼叫技能冒充自動戰鬥。
 
-測試世界使用創造模式玩家、固定位置且無 AI 的敵人，以及測試用生命和能量設定。為驗證時停，測試程式另外為同一村民交付 Odin 腰帶；此段檢查自動技能與連線客戶端，不重複測試 Odin 的拖放操作。生存模式實際收費由伺服器測試覆蓋。另在真實客戶端交付兩枚同槽鎖種、按鈕開啟自動換形態、確認 Black Ringo 與回血同步，並確認 Musou Saber 遠程射擊及返還。
+測試世界使用創造模式玩家、固定位置且無 AI 的敵人，以及測試用生命和能量設定。為驗證時停，測試程式另外為同一村民交付 Odin 腰帶；此段檢查自動技能與連線客戶端，不重複測試 Odin 的拖放操作。生存模式實際收費亦由伺服器測試覆蓋。另在真實客戶端交付兩枚同槽鎖種、按鈕開啟自動換形態、確認 Black Ringo 與回血同步，並確認 Musou Saber 遠程射擊及返還。
 
-1.2.0 另以原版按鍵設定畫面改成 N，重新載入選項驗證保存，再以獨立 Xvfb 的原生鍵鼠事件開啟管理。檢查舊 Shift＋右鍵不再開啟管理、普通右鍵仍可交易，然後改成滑鼠中鍵、按 Esc 取消綁定、按原版「重設」還原並再次開啟。GUI 開啟時和準星未指向村民時，管理快捷鍵不啟用。
+按鍵流程以原版按鍵設定畫面改成 N，重新載入選項驗證保存，再以獨立 Xvfb 的原生鍵鼠事件開啟管理。檢查舊 Shift＋右鍵不再開啟管理、普通右鍵仍可交易，然後改成滑鼠中鍵、按 Esc 取消綁定、按原版「重設」還原並再次開啟。GUI 開啟時和準星未指向村民時，管理快捷鍵不啟用。
+
+1.3.0 的圖形流程在生存模式完成第三次招募（扣 24 顆），以容器封包交付食物與武器，驗證麵包消耗、回血間隔、滿血停止及玩家攻擊保護。倒地 UI 先顯示原期限的倒數，再將此測試場景的期限提前以驗證恢復同步；完整 3～5 分鐘的遊戲刻等待另由 GameTest 執行，沒有修改正式規則。
 
 | 證據 | 畫面 |
 | --- | --- |
@@ -58,7 +63,7 @@
 | 倒地 | [08-downed-companion.png](../evidence/08-downed-companion.png) |
 | GUI 比例 3 | [09-compact-gui-scale-3.png](../evidence/09-compact-gui-scale-3.png) |
 | 騎士踢過程 | [10-rider-kick-strike.png](../evidence/10-rider-kick-strike.png) |
-| 招募者救援 | [11-rescued-companion.png](../evidence/11-rescued-companion.png) |
+| 自動恢復後 | [11-rescued-companion.png](../evidence/11-rescued-companion.png) |
 | Odin 自動時停 | [12-odin-time-stop.png](../evidence/12-odin-time-stop.png) |
 | 解約恢復村民 | [13-released-villager.png](../evidence/13-released-villager.png) |
 | 變身中交付兩枚鎖種 | [14-gaim-reserve-forms.png](../evidence/14-gaim-reserve-forms.png) |
@@ -68,10 +73,14 @@
 | 改成 N 並重新載入設定 | [18-rebound-key-setting.png](../evidence/18-rebound-key-setting.png) |
 | 自訂鍵盤鍵開啟管理 | [19-rebound-management.png](../evidence/19-rebound-management.png) |
 | 改成單獨滑鼠中鍵 | [20-mouse-key-setting.png](../evidence/20-mouse-key-setting.png) |
+| 倒地自動恢復倒數 | [21-downed-recovery-countdown.png](../evidence/21-downed-recovery-countdown.png) |
+| 第三次招募價格 | [22-progressive-recruitment.png](../evidence/22-progressive-recruitment.png) |
+| 食物回血並保留武器 | [23-food-healing.png](../evidence/23-food-healing.png) |
+| 玩家攻擊後同伴仍滿血 | [24-protected-companion.png](../evidence/24-protected-companion.png) |
 
-客戶端執行結果收錄在 [測試結果摘要](test-results.md)，成功標記為 `KRC_VILLAGERS_LIVE_OK`。完整日誌保留於本機 `.work/keybindings-client.log`，不納入 Git 倉庫或專案原始碼 ZIP。截圖顯示外觀，技能開始、狀態清理與物品數量另有狀態斷言；時停亦檢查客戶端的 TimeClock 暫停狀態，以及解約後的客戶端恢復狀態。
+客戶端執行結果收錄在 [測試結果摘要](test-results.md)，成功標記為 `KRC_VILLAGERS_LIVE_OK`。完整日誌保留於本機 `.work/balance-client.log`，不納入 Git 倉庫或專案原始碼 ZIP。截圖顯示外觀，技能開始、狀態清理與物品數量另有狀態斷言；時停亦檢查客戶端的 TimeClock 暫停狀態，以及解約後的客戶端恢復狀態。
 
-以上圖形客戶端證據使用 1.2.0 的鎖定依賴組合。依賴自動更新的發布條件為編譯及全部伺服器 GameTest 通過，不代表逐版重跑了圖形客戶端或完整模組包遊玩。
+以上圖形客戶端證據使用 1.3.0 的鎖定依賴組合。依賴自動更新的發布條件為編譯及全部伺服器 GameTest 通過，不代表逐版重跑了圖形客戶端或完整模組包遊玩。
 
 ## 版本相容處理
 

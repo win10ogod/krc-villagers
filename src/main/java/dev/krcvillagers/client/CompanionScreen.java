@@ -12,7 +12,7 @@ import java.util.*;
 public final class CompanionScreen extends AbstractContainerScreen<CompanionMenu> {
     private List<String> skills=List.of("rider_punch","rider_kick");
     private final List<Button> ownedButtons=new ArrayList<>();
-    private Button recruit,rescue,release,autoForms;
+    private Button recruit,recovery,release,autoForms;
     private int skillOffset;
     private float uiScale=1;
     private final Map<String,Button> skillButtons=new LinkedHashMap<>();
@@ -29,7 +29,7 @@ public final class CompanionScreen extends AbstractContainerScreen<CompanionMenu
             ownedButtons.add(button("mode."+i,198+i*62,58,58,()->send("mode",VillagerCompanionData.Mode.values()[mode].name())));
             ownedButtons.add(button("policy."+i,198+i*62,84,58,()->send("policy",VillagerCompanionData.Policy.values()[mode].name())));
         }
-        rescue=button("rescue",198,110,89,()->send("rescue",""));
+        recovery=button("recovery",198,110,89,()->{});recovery.active=false;
         release=button("release",291,110,89,()->send("release",""));
         autoForms=button("auto_forms.on",60,78,116,()->send("auto_forms",""));
         autoForms.setTooltip(net.minecraft.client.gui.components.Tooltip.create(tr("auto_forms.hint")));
@@ -49,8 +49,10 @@ public final class CompanionScreen extends AbstractContainerScreen<CompanionMenu
         recruit.active=menu.values.get(0)==0&&!menu.villager.isBaby();
         recruit.setMessage(menu.values.get(0)==0?Component.translatable("screen.krc_villagers.recruit_cost",menu.values.get(8)):tr(owner?"owner":"other_owner"));
         for(var b:ownedButtons)b.active=owner&&menu.values.get(4)==0;
-        rescue.setTooltip(net.minecraft.client.gui.components.Tooltip.create(Component.translatable("screen.krc_villagers.rescue_cost",menu.values.get(9))));
-        rescue.active=owner&&menu.values.get(4)==1;release.active=owner&&menu.values.get(4)==0;
+        int seconds=menu.values.get(9);
+        recovery.setMessage(menu.values.get(4)==1?Component.translatable("screen.krc_villagers.recovery_time",seconds/60,String.format(java.util.Locale.ROOT,"%02d",seconds%60)):tr("recovery"));
+        recovery.setTooltip(net.minecraft.client.gui.components.Tooltip.create(tr("recovery_hint")));
+        release.active=owner&&menu.values.get(4)==0;
         for(var e:skillButtons.entrySet()){
             e.getValue().active=owner;
             e.getValue().setMessage(Component.literal(menu.companion.enabled(e.getKey())?"✓ ":"○ ").append(Component.translatable("skill.krc_villagers."+e.getKey())));

@@ -66,20 +66,20 @@ public final class CompanionTests {
     @GameTest(template="empty",timeoutTicks=100)
     public static void recruitmentChargesOnceAndKeepsIdentity(GameTestHelper h) {
         var v=villager(h);var id=v.getUUID();var p=h.makeMockPlayer(GameType.SURVIVAL);
-        p.getInventory().add(new ItemStack(Items.EMERALD,16));
+        p.getInventory().add(new ItemStack(Items.EMERALD,32));
         h.assertTrue(Companions.recruit(p,v),"first recruitment");
         h.assertTrue(!Companions.recruit(p,v),"duplicate recruitment denied");
-        h.assertTrue(p.getInventory().countItem(Items.EMERALD)==8,"only one payment");
+        h.assertTrue(p.getInventory().countItem(Items.EMERALD)==16,"only one payment");
         h.assertTrue(v.getUUID().equals(id)&&v.getVillagerData().getLevel()==3&&v.getVillagerData().getProfession()==VillagerProfession.FARMER,"identity and profession retained");
         h.succeed();
     }
     @GameTest(template="empty",timeoutTicks=100)
     public static void childAndInsufficientPaymentAreRejected(GameTestHelper h) {
         var v=villager(h);var p=h.makeMockPlayer(GameType.SURVIVAL);
-        p.getInventory().add(new ItemStack(Items.EMERALD,7));
+        p.getInventory().add(new ItemStack(Items.EMERALD,15));
         h.assertTrue(!Companions.recruit(p,v),"short payment rejected");
         p.getInventory().add(new ItemStack(Items.EMERALD,1));v.setAge(-24000);
-        h.assertTrue(!Companions.recruit(p,v)&&p.getInventory().countItem(Items.EMERALD)==8,"child rejected without payment");h.succeed();
+        h.assertTrue(!Companions.recruit(p,v)&&p.getInventory().countItem(Items.EMERALD)==16,"child rejected without payment");h.succeed();
     }
     @GameTest(template="empty",timeoutTicks=200)
     public static void everyRegisteredBeltTransformsTheSameVillager(GameTestHelper h) {
@@ -118,12 +118,16 @@ public final class CompanionTests {
         h.assertTrue(!Companions.hostile(v,civilian)&&!Companions.hostile(v,wolf)&&!Companions.hostile(v,h.makeMockPlayer(GameType.SURVIVAL)),"allies excluded");h.succeed();
     }
     @GameTest(template="empty",timeoutTicks=100)
-    public static void lethalHitDownsAndOwnerCanRescue(GameTestHelper h) {
-        var v=villager(h);var p=h.makeMockPlayer(GameType.SURVIVAL);p.getInventory().add(new ItemStack(Items.EMERALD,12));Companions.recruit(p,v);
+    public static void lethalHitDownsAndRecoveryWaitsForDeadline(GameTestHelper h) {
+        var v=villager(h);var p=h.makeMockPlayer(GameType.SURVIVAL);p.getInventory().add(new ItemStack(Items.EMERALD,20));Companions.recruit(p,v);
         v.hurt(v.damageSources().generic(),1000);
         h.assertTrue(v.isAlive()&&v.getData(KrcVillagers.COMPANION).downed,"lethal hit became downed");
         v.hurt(v.damageSources().generic(),1000);h.assertTrue(v.isAlive(),"downed protection");
-        h.assertTrue(Companions.rescue(p,v),"owner rescue");h.assertTrue(v.getHealth()==v.getMaxHealth()*0.5f&&p.getInventory().countItem(Items.EMERALD)==0,"rescue health and cost");h.succeed();
+        var d=v.getData(KrcVillagers.COMPANION);long deadline=d.recoverAt;
+        h.assertTrue(deadline-h.getLevel().getGameTime()>=3600&&deadline-h.getLevel().getGameTime()<=6000,"3 to 5 minute deadline");
+        CompanionCare.recover(v);h.assertTrue(d.downed&&p.getInventory().countItem(Items.EMERALD)==4,"early recovery denied without payment");
+        d.recoverAt=h.getLevel().getGameTime();CompanionCare.recover(v);
+        h.assertTrue(!d.downed&&v.getHealth()==v.getMaxHealth()*0.5f&&p.getInventory().countItem(Items.EMERALD)==4,"deadline recovery restores half health for free");h.succeed();
     }
     @GameTest(template="empty",timeoutTicks=100)
     public static void friendlyDamageIsCanceled(GameTestHelper h) {

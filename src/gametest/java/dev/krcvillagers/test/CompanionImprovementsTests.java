@@ -74,7 +74,7 @@ public final class CompanionImprovementsTests {
         var restored = (Villager)EntityType.loadEntityRecursive(n, h.getLevel(), entity -> entity); h.getLevel().addFreshEntity(restored);
         h.assertTrue(restored.getMainHandItem().is(Items.DIAMOND_SWORD) && restored.getMainHandItem().getDamageValue() == 41, "escrow survives stale empty entity hand");
         Companions.down(restored); h.assertTrue(restored.getMainHandItem().is(Items.DIAMOND_SWORD), "downed retains weapon");
-        Companions.rescue(p, restored); Companions.release(p, restored); Companions.release(p, restored);
+        restored.getData(KrcVillagers.COMPANION).recoverAt=h.getLevel().getGameTime(); CompanionCare.recover(restored); Companions.release(p, restored); Companions.release(p, restored);
         h.assertTrue(p.getInventory().countItem(Items.DIAMOND_SWORD) == 1 && restored.getMainHandItem().is(Items.BREAD), "one return and original hand restored"); h.succeed();
     }
     @GameTest(template="empty",timeoutTicks=100)

@@ -39,7 +39,7 @@ public final class Protocol {
         public Type<? extends CustomPacketPayload> type(){return TYPE;}
     }
     public static void register(RegisterPayloadHandlersEvent event) {
-        var registrar=event.registrar("3");
+        var registrar=event.registrar("4");
         registrar.playToServer(OpenManagement.TYPE,OpenManagement.CODEC,(packet,context)->context.enqueueWork(()->{
             if(context.player() instanceof ServerPlayer p) openManagement(p,packet);
         }));
@@ -81,7 +81,6 @@ public final class Protocol {
                     if(d.policy==VillagerCompanionData.Policy.OFF) Henshin.end(v);
                     else if(d.policy==VillagerCompanionData.Policy.ON) Henshin.begin(v);
                 }
-                case "rescue" -> d.status=Companions.rescue(p,v)?"message.krc_villagers.rescued":"message.krc_villagers.cannot_rescue";
                 case "release" -> Companions.release(p,v);
                 case "toggle" -> { if(Skills.available(v).contains(packet.value)) d.toggle(packet.value); }
                 case "auto_forms" -> d.autoForms = !d.autoForms;

@@ -59,8 +59,8 @@ public final class RangedCombat {
             if (WaterSafety.dry(v, pos)) v.getNavigation().moveTo(away.x, away.y, away.z, 1.1);
             else v.getNavigation().stop();
         }
-        if (v.tickCount < d.rangedCooldown || !clearShot(v, target)) { stop(v); return true; }
         long now = v.level().getGameTime();
+        if (now < d.nextRangedAttack || !clearShot(v, target)) { stop(v); return true; }
         var state = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag().getCompound("krc_villagers_gun");
         if (krc && now < state.getLong("ReadyAt")) { stop(v); return true; }
         int charge = item instanceof NeoBaseBlasterItem gun ? ((NeoBlasterAccess)gun).kv$drawTime()
@@ -104,12 +104,12 @@ public final class RangedCombat {
             // The native mob-target overload compensates for slower pillager shots.
             // Use our aimed rotation with normal crossbow velocity instead.
             crossbow.performShooting(v.level(), v, InteractionHand.MAIN_HAND, stack, velocity, 1, null);
-            d.rangedCooldown = v.tickCount + 10;
         } else if (item instanceof BowItem bow) {
             ((ProjectileWeaponAccess)bow).kv$shoot((ServerLevel)v.level(), v, InteractionHand.MAIN_HAND, stack,
                     ProjectileWeaponAccess.kv$draw(stack, ammo, v), 3, 1, true, target);
-            v.playSound(SoundEvents.ARROW_SHOOT, 1, 1); d.rangedCooldown = v.tickCount + 10;
+            v.playSound(SoundEvents.ARROW_SHOOT, 1, 1);
         }
+        d.nextRangedAttack=now+Settings.RANGED_INTERVAL.get();
         stop(v); v.swing(InteractionHand.MAIN_HAND);
         return true;
     }
@@ -118,7 +118,7 @@ public final class RangedCombat {
         var state = custom.getCompound("krc_villagers_gun");
         int remaining = (state.contains("Ammo") ? state.getInt("Ammo") : capacity) - 1;
         state.putInt("Ammo", remaining <= 0 ? capacity : remaining);
-        state.putLong("ReadyAt", now + Math.max(1, remaining <= 0 ? reload : rate));
+        state.putLong("ReadyAt", now + Math.max(Settings.RANGED_INTERVAL.get(), remaining <= 0 ? reload : rate));
         custom.put("krc_villagers_gun", state); stack.set(DataComponents.CUSTOM_DATA, CustomData.of(custom));
     }
     private static void aim(Villager v, LivingEntity target, boolean arrow, float velocity) {

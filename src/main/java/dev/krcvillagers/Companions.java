@@ -39,8 +39,12 @@ public final class Companions {
     }
     public static boolean recruit(Player p,Villager v) {
         var d=v.getData(KrcVillagers.COMPANION);
-        if(d.active() || v.isBaby() || !pay(p,Settings.RECRUIT_COST.get())) return false;
+        if(p.level().isClientSide()||d.active()||v.isBaby())return false;
+        var history=RecruitmentHistory.get(p);
+        if(!pay(p,history.cost(p.getUUID())))return false;
+        history.recruited(p.getUUID());
         d.owner=p.getUUID(); d.mode=VillagerCompanionData.Mode.FOLLOW;
+        CompanionCare.movement(v);
         v.getAttribute(com.kelco.kamenridercraft.world.attribute.Attributes.ABILITY_METER).setBaseValue(
                 v.getAttribute(com.kelco.kamenridercraft.world.attribute.Attributes.MAX_ABILITY_METER).getValue());
         CompanionEquipment.bind(v);
@@ -57,18 +61,15 @@ public final class Companions {
         CompanionEquipment.release(v);
         for(int i=0;i<d.items.getSlots();i++) { var item=d.items.extractItem(i,Integer.MAX_VALUE,false); if(!p.getInventory().add(item)) p.drop(item,false); }
         d.owner=null; d.disabledSkills.clear(); v.setTarget(null); v.getNavigation().stop();
+        CompanionCare.movement(v);
         Protocol.sync(v); p.closeContainer();
     }
     public static void down(Villager v) {
         var d=v.getData(KrcVillagers.COMPANION);
+        if(d.downed)return;
         Henshin.end(v); d.downed=true; v.setHealth(1); v.stopSleeping(); v.setTarget(null); v.getNavigation().stop();
+        d.recoverAt=0;CompanionCare.scheduleRecovery(v);RangedCombat.stop(v);
         v.setDeltaMovement(Vec3.ZERO); v.clearFire(); Protocol.sync(v);
-    }
-    public static boolean rescue(Player p,Villager v) {
-        var d=v.getData(KrcVillagers.COMPANION);
-        if(!owns(p,v)||!d.downed||!pay(p,Settings.RESCUE_COST.get())) return false;
-        d.downed=false; v.setHealth(v.getMaxHealth()*0.5f); v.invulnerableTime=40;
-        Protocol.sync(v); return true;
     }
     public static boolean controlBrain(Villager v) {
         if(!active(v)) return false;
@@ -79,14 +80,17 @@ public final class Companions {
     public static void tick(Villager v) {
         if(!active(v)||!(v.level() instanceof ServerLevel level)) return;
         var d=v.getData(KrcVillagers.COMPANION);
+        CompanionCare.movement(v);
         CompanionEquipment.bind(v);
         boolean swimming = WaterSafety.tick(v);
         if(v.onGround() && !v.isInLava() && !v.isInWater() && level.getBlockState(v.blockPosition().below()).isSolid()) d.lastSafe=v.blockPosition();
         if(d.downed) {
             v.setTarget(null); v.getNavigation().stop(); v.setDeltaMovement(0,v.getDeltaMovement().y,0); v.clearFire();
             if(v.getY()<level.getMinBuildHeight() && d.lastSafe!=null) v.teleportTo(d.lastSafe.getX()+0.5,d.lastSafe.getY(),d.lastSafe.getZ()+0.5);
+            CompanionCare.recover(v);
             return;
         }
+        CompanionCare.eat(v);
         Henshin.tick(v);
         Skills.tick(v);
         if(v.tickCount%10==0) AutoForms.tick(v);
