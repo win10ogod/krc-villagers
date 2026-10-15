@@ -18,6 +18,7 @@
     "KrcCompatMixin",
     "NativeAbilityMixin",
     "MightySideMixin",
+    "HenshinNetworkServerMixin",
     "MobAnimatorServerMixin",
     "TimeDataAccess",
     "FormEffectsMixin"

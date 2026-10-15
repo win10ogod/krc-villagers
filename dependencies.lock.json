@@ -20,18 +20,18 @@
       }
     },
     {
-      "path": "generic_henshin-cf8929723.jar",
-      "sha256": "638f70f5b6ed511d568d6558a825ce80f8d5b7cbc712d593b2e9bc98aa648b2b",
+      "path": "generic_henshin-cf9173897.jar",
+      "sha256": "9a02bd32bf25afbbcc47ba14539bc22962547b882ecbf02eaef05ca3ce800532",
       "modid": "generic_henshin",
       "version": "0.1.139",
       "license": "WTFPL",
       "project": "https://www.curseforge.com/minecraft/mc-mods/generic-henshin",
-      "source_url": "https://www.curseforge.com/minecraft/mc-mods/generic-henshin/files/8929723",
-      "download_url": "https://edge.forgecdn.net/files/8929/723/generic_henshin-0.1.139-littlejoys-v431-blade-settle.jar",
+      "source_url": "https://www.curseforge.com/minecraft/mc-mods/generic-henshin/files/9173897",
+      "download_url": "https://edge.forgecdn.net/files/9173/897/generic_henshin-0.1.139-littlejoys-v634-kuuga-kick-magicfix-damagevfx-ee-explosion-global.jar",
       "update": {
         "provider": "curseforge",
         "project_id": 1668781,
-        "file_id": 8929723,
+        "file_id": 9173897,
         "channel": "release"
       }
     },

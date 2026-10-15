@@ -12,12 +12,12 @@
 
 適用 **Minecraft 1.21.1、NeoForge 21.1.244、Java 21**。從 [GitHub Releases](https://github.com/win10ogod/krc-villagers/releases) 下載 `krc-villagers-<版本>.jar`，放進遊戲實例的 `mods` 資料夾；多人遊戲的伺服器和每位玩家都要安裝。
 
-以下是 **1.3.0 的測試組合**。自動更新發布的版本，請以該 Release 的依賴下載表與隨附 `dependencies.lock.json` 為準；每次更新都需重新通過編譯及遊戲測試。
+以下是 **1.3.1 的測試組合**。自動更新發布的版本，請以該 Release 的依賴下載表與隨附 `dependencies.lock.json` 為準；每次更新都需重新通過編譯及遊戲測試。
 
 | 模組 | 版本／檔案 |
 | --- | --- |
 | Kamen Rider Craft | `kamenridercraft-1.1.4.jar` |
-| 通用變身 Generic Henshin | 0.1.139，`generic_henshin-cf8929723.jar` |
+| 通用變身 Generic Henshin | 0.1.139，`generic_henshin-cf9173897.jar` |
 | GeckoLib | `geckolib-neoforge-1.21.1-4.9.3.jar` |
 | Player Animation Library | `PlayerAnimationLibNeoforge-1.1.6+mc.1.21.1.jar` |
 | Player Animator | `player-animation-lib-forge-2.0.4+1.21.1.jar` |
@@ -31,7 +31,7 @@
 
 在 **選項 → 控制 → 按鍵設定 → 假面騎士村民 → 開啟村民管理** 修改快捷鍵。可使用鍵盤、滑鼠按鈕或 Shift／Ctrl／Alt 組合；點選按鍵欄後輸入新組合，按 Esc 可取消綁定，「重設」恢復 Shift＋右鍵。設定會隨遊戲選項保存，重新開啟遊戲後保留。可參考[按鍵設定畫面](evidence/18-rebound-key-setting.png)。
 
-準星對準互動距離內的村民再按快捷鍵。改成單鍵後不必蹲下；改成其他按鍵後，原本的 Shift＋右鍵回到原版互動。若綁定普通右鍵，對村民按右鍵就會優先開啟管理；想保留交易操作，可改用其他按鍵或修飾鍵組合。各玩家可分別設定，與原版「潛行」按鍵獨立；多人遊戲請將伺服器和客戶端一併更新至 1.3.0。
+準星對準互動距離內的村民再按快捷鍵。改成單鍵後不必蹲下；改成其他按鍵後，原本的 Shift＋右鍵回到原版互動。若綁定普通右鍵，對村民按右鍵就會優先開啟管理；想保留交易操作，可改用其他按鍵或修飾鍵組合。各玩家可分別設定，與原版「潛行」按鍵獨立；多人遊戲請將伺服器和客戶端一併更新至 1.3.1。
 
 1. 對成年村民按管理快捷鍵（預設 **Shift＋右鍵**），每位玩家的招募費用依成功次數分開累計：**16、20、24、28……顆綠寶石**。解約、死亡或重新登入不重置次數；失敗不計次。創造模式免收費但成功招募仍計次，招募人數不設上限。
 2. 把真正的 KRC 腰帶放進「腰帶」欄。腰帶已安裝的形態會保留；指定起始形態時，將形態道具放進它對應的 **1～5 號插槽**。例如 W 的兩枚記憶體需使用相應槽位。
@@ -99,7 +99,7 @@ calmTicks = 400
 python scripts/import-dependencies.py --download
 ```
 
-本版測試組合的 KRC 為 [1.1.4／檔案 8869063](https://www.curseforge.com/minecraft/mc-mods/kamen-rider-craft/files/8869063)；通用變身為 [0.1.139 的 v431 blade-settle 版本／檔案 8929723](https://www.curseforge.com/minecraft/mc-mods/generic-henshin/files/8929723)，下載後存為專案使用的 `generic_henshin-cf8929723.jar`。下載腳本依目前鎖定檔取得版本，不會自行更新鎖定檔或覆蓋不同雜湊的既有檔案。原始下載網址與版本頁均記錄於 [dependencies.lock.json](dependencies.lock.json)。
+本版測試組合的 KRC 為 [1.1.4／檔案 8869063](https://www.curseforge.com/minecraft/mc-mods/kamen-rider-craft/files/8869063)；通用變身為 [0.1.139 的 v634 kuuga-kick-magicfix-damagevfx-ee-explosion-global 版本／檔案 9173897](https://www.curseforge.com/minecraft/mc-mods/generic-henshin/files/9173897)，下載後存為專案使用的 `generic_henshin-cf9173897.jar`。下載腳本依目前鎖定檔取得版本，不會自行更新鎖定檔或覆蓋不同雜湊的既有檔案。原始下載網址與版本頁均記錄於 [dependencies.lock.json](dependencies.lock.json)。
 
 也可手動把 KRC 與 GH 的上述 JAR 放在專案根目錄，其他依賴放在 `libs/`。
 
@@ -141,7 +141,7 @@ KRC 與通用變身預設使用 [CFWidget 公開索引](https://cfwidget.com/) �
 
 普通 push 與 PR 也會編譯測試；`main` 成功後自動發布 `dev-<run ID>` 開發預覽版，PR 不發布。推送與 `mod_version` 一致的版本標籤，例如 `v1.0.0`，則自動發布正式版。已發布的版本不覆寫；中斷留下的同提交草稿可由重新執行發布工作補齊附件。所有發布均使用同次成功建置的成品，發布工作不重新編譯。
 
-遊戲測試必須全部通過；Gradle 會比對測試程式中的項目數與伺服器的成功結果，缺少測試結果也會使工作流失敗。目前共 51 項 GameTest。工作流不執行圖形介面測試，客戶端驗證使用下方 `runClient -PuiSmoke`。
+遊戲測試必須全部通過；Gradle 會比對測試程式中的項目數與伺服器的成功結果，缺少測試結果也會使工作流失敗。目前共 52 項 GameTest。工作流不執行圖形介面測試，客戶端驗證使用下方 `runClient -PuiSmoke`。
 
 登入 GitHub，開啟成功的執行紀錄，在 **Artifacts** 下載 `krc-villagers-<commit SHA>`。壓縮檔包含：
 

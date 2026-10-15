@@ -15,6 +15,10 @@ on:
 permissions:
   contents: read
 
+defaults:
+  run:
+    shell: bash
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -91,6 +95,7 @@ jobs:
       - name: Build and run all GameTests
         if: ${{ steps.plan.outputs.build == 'true' }}
         run: |
+          set -euo pipefail
           mkdir -p build/ci
           ./gradlew --no-daemon --console=plain build runGameTestServer sourceZip 2>&1 | tee build/ci/gradle.log
 

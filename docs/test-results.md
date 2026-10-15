@@ -1,3 +1,27 @@
+# 1.3.1 測試結果摘要
+
+驗證日期：2026-10-15。依賴更新至 GH 0.1.139 的 CurseForge 9173897（v634）；其餘依賴見 `dependencies.lock.json`。
+
+```bash
+python3 -m unittest discover -s scripts/tests -v
+xvfb-run -a -s '-screen 0 1280x800x24' ./gradlew --no-daemon --console=plain build runGameTestServer runClient -PuiSmoke
+```
+
+20 項自動化測試與 52 項 GameTest 通過。新增測試確認 `tee` 保留日誌的同時傳回 Gradle 失敗狀態，以及專用伺服器保留通用變身的 10 個客戶端方向與 6 個伺服器方向封包 codec。
+
+```text
+Ran 20 tests
+OK
+All 52 required tests passed :)
+KRC_VILLAGERS_BALANCE_OK: progressive recruitment, food consumption/healing and player protection verified
+KRC_VILLAGERS_LIVE_OK
+BUILD SUCCESSFUL in 3m 17s
+```
+
+圖形客戶端重跑招募、裝備、GH 自動拳／踢、倒地恢復、Odin 時停、鎧武形態／回血／射擊、食物消耗、玩家誤傷保護與按鍵重綁。24 張畫面依據這組依賴更新。本機日誌位於 `.work/workflow-repair/villagers-client.log` 與 `.work/workflow-repair/automation-tests.log`。
+
+---
+
 # 1.3.0 測試結果摘要
 
 驗證日期：2026-09-29。Minecraft 1.21.1、NeoForge 21.1.244、Java 21、KRC 1.1.4、GH 0.1.139（CurseForge 8929723／v431）、GeckoLib 4.9.3；完整依賴見 `dependencies.lock.json`。
