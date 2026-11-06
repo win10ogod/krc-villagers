@@ -12,6 +12,7 @@ public interface FormRequirements {
     @Accessor("needFormSlot2") RiderFormChangeItem kv$needTwo();
     @Accessor("needFormSlot3") RiderFormChangeItem kv$needThree();
     @Accessor("needFormSlot4") RiderFormChangeItem kv$needFour();
+    @Accessor("needFormSlot5") RiderFormChangeItem kv$needFive();
     @Accessor("incompatibleForms") List<RiderFormChangeItem> kv$incompatible();
     @Accessor("resetForm") Boolean kv$reset();
     @Accessor("resetToMainForm") Boolean kv$resetMain();

@@ -4,18 +4,18 @@
   "java": 21,
   "files": [
     {
-      "path": "kamenridercraft-1.1.4.jar",
-      "sha256": "0ecbdaa341592efc105529a537280965baa21bc2c4c08c5b20d744d915fd3690",
+      "path": "kamenridercraft-1.1.5.jar",
+      "sha256": "5015411353a272e552785ee478924cd2fd458901959a712b05431d8a9bcd56d7",
       "modid": "kamenridercraft",
-      "version": "1.1.4",
+      "version": "1.1.5",
       "license": "MIT License",
       "project": "https://www.curseforge.com/minecraft/mc-mods/kamen-rider-craft",
-      "source_url": "https://www.curseforge.com/minecraft/mc-mods/kamen-rider-craft/files/8869063",
-      "download_url": "https://edge.forgecdn.net/files/8869/63/kamenridercraft-1.1.4.jar",
+      "source_url": "https://www.curseforge.com/minecraft/mc-mods/kamen-rider-craft/files/9326884",
+      "download_url": "https://edge.forgecdn.net/files/9326/884/kamenridercraft-1.1.5.jar",
       "update": {
         "provider": "curseforge",
         "project_id": 306845,
-        "file_id": 8869063,
+        "file_id": 9326884,
         "channel": "release"
       }
     },

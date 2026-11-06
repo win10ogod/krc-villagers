@@ -45,7 +45,7 @@ public final class Forms {
         if (RiderDriverItem.getFormItem(stack, form.getSlot()) == form) return "";
         if (req.kv$needBase() && RiderDriverItem.getFormItem(stack, 1) != belt.baseFormItem)
             return "message.krc_villagers.missing_form";
-        var needs = Arrays.asList(req.kv$needOne(), req.kv$needTwo(), req.kv$needThree(), req.kv$needFour());
+        var needs = Arrays.asList(req.kv$needOne(), req.kv$needTwo(), req.kv$needThree(), req.kv$needFour(), req.kv$needFive());
         for (int i = 0; i < needs.size(); i++)
             if (needs.get(i) != null && RiderDriverItem.getFormItem(stack, i + 1) != needs.get(i))
                 return "message.krc_villagers.missing_form";
@@ -60,7 +60,7 @@ public final class Forms {
         var others = Arrays.asList(req.kv$alsoOne(), req.kv$alsoTwo(), req.kv$alsoThree(), req.kv$alsoFour());
         for (int i = 0; i < others.size(); i++)
             if (others.get(i) != null) RiderDriverItem.setFormItem(stack, others.get(i), i + 1);
-        if (req.kv$old() != null) RiderDriverItem.SetOldFormItem(stack, req.kv$old(), form.getSlot());
+        if (req.kv$old() != null) RiderDriverItem.setOldFormItem(stack, req.kv$old(), form.getSlot());
         if (req.kv$armor()) RiderDriverItem.setFormItem(stack, belt.armorFormItem, 1);
         RiderDriverItem.setFormItem(stack, form, form.getSlot());
         if (req.kv$alsoFive() != null) RiderDriverItem.setFormItem(stack, req.kv$alsoFive(), 5);

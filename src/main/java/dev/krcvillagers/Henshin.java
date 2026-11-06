@@ -25,7 +25,7 @@ public final class Henshin {
     public static boolean ready(Villager v) {
         var d = v.getData(KrcVillagers.COMPANION);
         return d.active() && !d.downed && d.stage == 0 && transformed(v)
-                && v.getAttribute(com.kelco.kamenridercraft.world.attribute.Attributes.IS_TRANSFORMING).getValue() <= 0;
+                && v.getAttribute(com.kelco.kamenridercraft.world.attribute.KRCAttributes.IS_TRANSFORMING).getValue() <= 0;
     }
     public static String rider(Villager v) {
         var b = belt(v);
@@ -92,7 +92,7 @@ public final class Henshin {
         v.stopUsingItem(); CompanionEquipment.bind(v);
         d.lastAxelForm="";
         v.setInvulnerable(false);
-        v.getAttribute(com.kelco.kamenridercraft.world.attribute.Attributes.IS_TRANSFORMING).setBaseValue(0);
+        v.getAttribute(com.kelco.kamenridercraft.world.attribute.KRCAttributes.IS_TRANSFORMING).setBaseValue(0);
         Protocol.sync(v); Protocol.animate(v,"",0);
     }
 }

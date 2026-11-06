@@ -29,8 +29,11 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     outputs:
-      publish: ${{ steps.plan.outputs.publish }}
+      # A dependency candidate that fails the build is reported, never published.
+      publish: ${{ steps.plan.outputs.publish == 'true' && steps.gradle.outcome == 'success' }}
       updated: ${{ steps.updates.outputs.changed }}
+      locked: ${{ steps.plan.outputs.locked }}
+      rejected: ${{ steps.rejected.outputs.rejected }}
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -64,9 +67,10 @@ jobs:
           UPDATED: ${{ steps.updates.outputs.changed }}
         run: |
           python3 - <<'PY'
-          import os, re
+          import json, os, re
           from pathlib import Path
           version = re.search(r'^mod_version=(.+)$', Path('gradle.properties').read_text(), re.MULTILINE)[1]
+          locked = {e['modid']: e['source_url'] for e in json.loads(Path('dependencies.lock.json').read_text())['files']}
           event, ref = os.environ['GITHUB_EVENT_NAME'], os.environ['GITHUB_REF']
           if ref.startswith('refs/tags/v') and ref != 'refs/tags/v' + version:
               raise SystemExit('Version tag must match mod_version in gradle.properties')
@@ -74,6 +78,7 @@ jobs:
           publish = build and event in {'push', 'schedule', 'workflow_dispatch'} and (ref == 'refs/heads/main' or ref.startswith('refs/tags/v'))
           with open(os.environ['GITHUB_OUTPUT'], 'a') as out:
               out.write(f'build={str(build).lower()}\npublish={str(publish).lower()}\n')
+              out.write(f'locked={json.dumps(locked, separators=(",", ":"))}\n')
           if not build:
               with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as out:
                   out.write('Dependency check finished with no newer eligible files; current release retained. See the check log for provider freshness warnings.\n')
@@ -93,14 +98,23 @@ jobs:
         run: python3 scripts/import-dependencies.py --download
 
       - name: Build and run all GameTests
+        id: gradle
         if: ${{ steps.plan.outputs.build == 'true' }}
+        # Source changes must pass. An upstream update that breaks the build only stops that update
+        # from being published; the next step reports it and the current release stays in place.
+        continue-on-error: ${{ steps.updates.outputs.changed == 'true' }}
         run: |
           set -euo pipefail
           mkdir -p build/ci
           ./gradlew --no-daemon --console=plain build runGameTestServer sourceZip 2>&1 | tee build/ci/gradle.log
 
+      - name: Report dependency updates that failed verification
+        id: rejected
+        if: ${{ steps.updates.outputs.changed == 'true' && steps.gradle.outcome == 'failure' }}
+        run: python3 scripts/track-rejected-update.py --summarize
+
       - name: Record artifact checksums and test result
-        if: ${{ steps.plan.outputs.build == 'true' }}
+        if: ${{ steps.gradle.outcome == 'success' }}
         run: |
           mkdir -p build/ci/release-inputs
           cp dependencies.lock.json gradle.properties build/ci/release-inputs/
@@ -120,7 +134,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload mod and source archives
-        if: ${{ steps.plan.outputs.build == 'true' }}
+        if: ${{ steps.gradle.outcome == 'success' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: krc-villagers-${{ github.sha }}
@@ -199,3 +213,30 @@ jobs:
           RELEASE_SHA: ${{ steps.source.outputs.sha }}
           DEPENDENCIES_UPDATED: ${{ needs.build.outputs.updated }}
         run: python3 scripts/release.py
+
+  track:
+    name: Track dependency updates that need code changes
+    needs: [build, release]
+    # Open one issue for a rejected candidate set; after any publication, close the issues it resolved.
+    if: ${{ always() && github.ref == 'refs/heads/main' && (needs.build.outputs.rejected != '' || needs.release.result == 'success') }}
+    # Closing a resolved issue is housekeeping and must not fail a published release.
+    continue-on-error: ${{ needs.build.outputs.rejected == '' }}
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Check out the tested source commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Open, keep or close the dependency tracking issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          REJECTED: ${{ needs.build.outputs.rejected }}
+          LOCKED: ${{ needs.build.outputs.locked }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: python3 scripts/track-rejected-update.py --track

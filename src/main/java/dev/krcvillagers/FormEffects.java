@@ -15,7 +15,7 @@ public final class FormEffects {
     public static void apply(Villager v, RiderDriverItem belt) {
         if (!belt.isTransformed(v) || v.level().isClientSide()) return;
         var stack = v.getItemBySlot(EquipmentSlot.FEET);
-        double transforming = v.getAttribute(com.kelco.kamenridercraft.world.attribute.Attributes.IS_TRANSFORMING).getBaseValue();
+        double transforming = v.getAttribute(com.kelco.kamenridercraft.world.attribute.KRCAttributes.IS_TRANSFORMING).getBaseValue();
         boolean saturated = false;
         for (int slot = 1; slot <= belt.numBaseFormItems; slot++) {
             var form = RiderDriverItem.getFormItem(stack, slot, transforming);
