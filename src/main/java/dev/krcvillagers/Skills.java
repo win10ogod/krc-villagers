@@ -50,11 +50,11 @@ public final class Skills {
         boolean started=skill.equals(v.getData(AttachmentTypes.USED_ABILITY));
         if(!started && (skill.equals("wizard_kick_flame")||skill.equals("joker_memory_kick"))) {
             // Undo a rejected native precondition debit before using GH's special-form dispatch.
-            v.getAttribute(com.kelco.kamenridercraft.world.attribute.Attributes.ABILITY_METER).setBaseValue(meter);
+            v.getAttribute(com.kelco.kamenridercraft.world.attribute.KRCAttributes.ABILITY_METER).setBaseValue(meter);
             started=FormAbilitySpecial.trigger(v,skill);
         }
         if(!started) {
-            v.getAttribute(com.kelco.kamenridercraft.world.attribute.Attributes.ABILITY_METER).setBaseValue(meter);
+            v.getAttribute(com.kelco.kamenridercraft.world.attribute.KRCAttributes.ABILITY_METER).setBaseValue(meter);
             return false;
         }
         var d=v.getData(KrcVillagers.COMPANION);
@@ -137,7 +137,7 @@ public final class Skills {
         double meter=KrcCompat.getAbilityMeter(v);
         if(meter<cost) return false;
         if(!TimePowers.start(v,true,ZioTimeStopService.STOP_DURATION)) { d.status="message.krc_villagers.timeclock_failed"; return false; }
-        v.getAttribute(com.kelco.kamenridercraft.world.attribute.Attributes.ABILITY_METER).setBaseValue(meter-cost);
+        v.getAttribute(com.kelco.kamenridercraft.world.attribute.KRCAttributes.ABILITY_METER).setBaseValue(meter-cost);
         d.timeCharges++; v.setData(AttachmentTypes.ABILITY_COOLDOWN, ZioTimeStopService.COOLDOWN_TICKS);
         sound(v,"the_world_time_stop");
         Protocol.animate(v,"default.punch",0); return true;
@@ -155,10 +155,10 @@ public final class Skills {
         if (!v.getData(AttachmentTypes.USED_ABILITY).equals("clock_up")) return false;
         if (!TimePowers.start(v, false, KabutoBulletService.BULLET_DURATION_TICKS)) {
             AbilityUtil.cancelAbility(v, "", 0);
-            v.getAttribute(com.kelco.kamenridercraft.world.attribute.Attributes.ABILITY_METER).setBaseValue(meter);
+            v.getAttribute(com.kelco.kamenridercraft.world.attribute.KRCAttributes.ABILITY_METER).setBaseValue(meter);
             return false;
         }
-        v.getAttribute(com.kelco.kamenridercraft.world.attribute.Attributes.ABILITY_METER).setBaseValue(Math.max(0, meter - 50));
+        v.getAttribute(com.kelco.kamenridercraft.world.attribute.KRCAttributes.ABILITY_METER).setBaseValue(Math.max(0, meter - 50));
         v.getData(KrcVillagers.COMPANION).clearClockUp = true;
         return true;
     }

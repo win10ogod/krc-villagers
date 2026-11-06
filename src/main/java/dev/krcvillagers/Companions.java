@@ -45,8 +45,8 @@ public final class Companions {
         history.recruited(p.getUUID());
         d.owner=p.getUUID(); d.mode=VillagerCompanionData.Mode.FOLLOW;
         CompanionCare.movement(v);
-        v.getAttribute(com.kelco.kamenridercraft.world.attribute.Attributes.ABILITY_METER).setBaseValue(
-                v.getAttribute(com.kelco.kamenridercraft.world.attribute.Attributes.MAX_ABILITY_METER).getValue());
+        v.getAttribute(com.kelco.kamenridercraft.world.attribute.KRCAttributes.ABILITY_METER).setBaseValue(
+                v.getAttribute(com.kelco.kamenridercraft.world.attribute.KRCAttributes.MAX_ABILITY_METER).getValue());
         CompanionEquipment.bind(v);
         setGuard(v); v.setPersistenceRequired(); Protocol.sync(v); return true;
     }

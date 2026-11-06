@@ -53,14 +53,14 @@ public final class CompanionTests {
     }
     static void own(Villager v) {
         var d=v.getData(KrcVillagers.COMPANION);d.owner=UUID.randomUUID();d.mode=VillagerCompanionData.Mode.LIFE;
-        v.getAttribute(com.kelco.kamenridercraft.world.attribute.Attributes.ABILITY_METER).setBaseValue(300);
+        v.getAttribute(com.kelco.kamenridercraft.world.attribute.KRCAttributes.ABILITY_METER).setBaseValue(300);
     }
     static RiderDriverItem belt(String name) {return (RiderDriverItem)BuiltInRegistries.ITEM.get(ResourceLocation.parse("kamenridercraft:"+name));}
     static void equip(Villager v,RiderDriverItem b) {
         var d=v.getData(KrcVillagers.COMPANION);d.items.setStackInSlot(0,new ItemStack(b));
         if(!Henshin.begin(v))throw new IllegalStateException(d.status);
         for(int i=0;i<200&&d.stage>0;i++)Henshin.tick(v);
-        v.getAttribute(com.kelco.kamenridercraft.world.attribute.Attributes.IS_TRANSFORMING).setBaseValue(0);
+        v.getAttribute(com.kelco.kamenridercraft.world.attribute.KRCAttributes.IS_TRANSFORMING).setBaseValue(0);
         v.setOnGround(true);
     }
     @GameTest(template="empty",timeoutTicks=100)
@@ -141,7 +141,7 @@ public final class CompanionTests {
         v.getData(KrcVillagers.COMPANION).toggle("rider_punch");
         h.assertTrue(!Skills.start(v,"rider_punch")&&KrcCompat.getAbilityMeter(v)==300,"disabled ability no debit");
         h.assertTrue(!Skills.start(v,"unregistered_fake_skill")&&KrcCompat.getAbilityMeter(v)==300,"unknown ability no debit");
-        v.getAttribute(com.kelco.kamenridercraft.world.attribute.Attributes.ABILITY_METER).setBaseValue(0);
+        v.getAttribute(com.kelco.kamenridercraft.world.attribute.KRCAttributes.ABILITY_METER).setBaseValue(0);
         h.assertTrue(!Skills.start(v,"rider_kick")&&KrcCompat.getAbilityMeter(v)==0,"no energy no debit");h.succeed();
     }
     @GameTest(template="empty",timeoutTicks=100)

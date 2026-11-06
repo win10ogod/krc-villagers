@@ -102,7 +102,7 @@ public final class LiveClient {
                     if(ticks%100==0)System.out.println("LIVE_COMBAT_STATE phase="+phase+" position="+npc.position()+" ready="+Henshin.ready(npc)+" down="+npc.getData(KrcVillagers.COMPANION).downed+" ground="+npc.onGround()+" target="+(npc.getTarget()==null?"none":npc.getTarget().position()+" hp="+npc.getTarget().getHealth())+" energy="+com.example.generichenshin.compat.KrcCompat.getAbilityMeter(npc)+" ability="+ability+" tick="+npc.getData(AttachmentTypes.ABILITY_TICK)+" cooldown="+npc.getData(AttachmentTypes.ABILITY_COOLDOWN));});
                 if(!ability.isEmpty()&&captures==0){capture("06-native-combat-"+ability);captures++;}
                 if(ticks<180)return;
-                mc.getSingleplayerServer().execute(()->{var npc=(Villager)mc.getSingleplayerServer().overworld().getEntity(villagerId);if(npc.getTarget()!=null)npc.getTarget().setHealth(400);npc.setData(AttachmentTypes.ABILITY_COOLDOWN,0);npc.getAttribute(com.kelco.kamenridercraft.world.attribute.Attributes.ABILITY_METER).setBaseValue(300);});next();
+                mc.getSingleplayerServer().execute(()->{var npc=(Villager)mc.getSingleplayerServer().overworld().getEntity(villagerId);if(npc.getTarget()!=null)npc.getTarget().setHealth(400);npc.setData(AttachmentTypes.ABILITY_COOLDOWN,0);npc.getAttribute(com.kelco.kamenridercraft.world.attribute.KRCAttributes.ABILITY_METER).setBaseValue(300);});next();
             }
             case 9 -> {
                 mc.getSingleplayerServer().execute(()->{var npc=(Villager)mc.getSingleplayerServer().overworld().getEntity(villagerId);ability=npc.getData(AttachmentTypes.USED_ABILITY);
@@ -136,7 +136,7 @@ public final class LiveClient {
                 mc.getSingleplayerServer().execute(()->{
                     var level=mc.getSingleplayerServer().overworld();var npc=(Villager)level.getEntity(villagerId);
                     Henshin.end(npc);CompanionTests.equip(npc,CompanionTests.belt("v_buckle_odin"));
-                    npc.setData(AttachmentTypes.ABILITY_COOLDOWN,0);npc.getAttribute(com.kelco.kamenridercraft.world.attribute.Attributes.ABILITY_METER).setBaseValue(300);
+                    npc.setData(AttachmentTypes.ABILITY_COOLDOWN,0);npc.getAttribute(com.kelco.kamenridercraft.world.attribute.KRCAttributes.ABILITY_METER).setBaseValue(300);
                     var d=npc.getData(KrcVillagers.COMPANION);d.policy=VillagerCompanionData.Policy.ON;
                     d.disabledSkills.add("rider_punch");d.disabledSkills.add("rider_kick");
                     if(npc.getTarget()==null){var enemy=EntityType.HUSK.create(level);enemy.setPos(npc.getX()+2,65,npc.getZ());enemy.setNoAi(true);level.addFreshEntity(enemy);npc.setTarget(enemy);}
