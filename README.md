@@ -25,7 +25,7 @@
 | Time Stop Clock | `timeclock-4.7.0-neoforge-1.21.1.jar` |
 | Cloth Config | `cloth-config-15.0.140-neoforge.jar` |
 
-兩個 Player Animation 模組具有不同的 mod ID，分別供 KRC 與通用變身使用，這組版本需要兩者。依賴檔案的 SHA-256 收錄於 [dependencies.lock.json](dependencies.lock.json)。發行 JAR 和原始碼壓縮包不內嵌其他模組。
+兩個 Player Animation 模組具有不同的 mod ID，分別供 KRC 與通用變身使用，這組版本需要兩者。KRC 1.1.5 起能量屬性類別改名為 `KRCAttributes`，通用變身 0.1.139 仍以舊名稱讀取；本模組會補上新名稱，讓通用變身的生物技能與能量計算照常運作。依賴檔案的 SHA-256 收錄於 [dependencies.lock.json](dependencies.lock.json)。發行 JAR 和原始碼壓縮包不內嵌其他模組。
 
 ## 操作
 
@@ -133,7 +133,7 @@ bash gradlew build runGameTestServer sourceZip
 3. 執行下載／更新／發布程式的回歸測試，以及 `build runGameTestServer sourceZip`。全部成功後，由發布工作提交新的鎖定檔與版號到 `main`，自動建立 `v<版本>` 正式 Release。
 4. Release 提供可安裝 JAR、sources JAR、完整專案 ZIP、SHA-256 校驗檔，以及此次精確的依賴下載連結。Release 附件沒有 Actions artifact 的 30 天到期限制。
 
-沒有新檔案時，排程只完成檢查，不產生重複版本。查詢、下載、編譯或 GameTest 失敗時，工作流會標示失敗，現有鎖定檔及可用 Release 保留；上游 Java／Mixin 介面改變導致的不相容，需要修正附屬模組後才能發布。測試期間 `main` 若已有新提交，候選更新也不會覆蓋它，下一次檢查會以新提交重試。
+沒有新檔案時，排程只完成檢查，不產生重複版本。查詢或下載失敗時，工作流會標示失敗。新檔案未通過編譯或 GameTest 時（例如上游 Java／Mixin 介面改變），這批候選不發布，現有鎖定檔及可用 Release 保留，排程照常顯示成功：執行紀錄摘要列出錯誤，並開一個「依賴更新未通過驗證」issue。同一批候選不會重複開 issue，較新的候選會取代舊 issue；修正附屬模組、連同新鎖定檔發布後，issue 自動關閉。普通 push 與 PR 的編譯或 GameTest 失敗仍會標示失敗。測試期間 `main` 若已有新提交，候選更新也不會覆蓋它，下一次檢查會以新提交重試。
 
 KRC 與通用變身預設使用 [CFWidget 公開索引](https://cfwidget.com/) 查詢 CurseForge 檔案，再從 **CurseForge 官方 CDN** 下載。CFWidget 是第三方快取索引，資料可能晚於上游；若索引比鎖定檔舊，會明確記錄警告並保留較新的已鎖定檔案。若已取得 CurseForge API 金鑰，可加到倉庫的 Actions secret `CURSEFORGE_API_KEY`，改用 [CurseForge 官方 API](https://docs.curseforge.com/rest-api/)；不設金鑰仍可執行。其餘六個模組使用 Modrinth 官方 API。
 
