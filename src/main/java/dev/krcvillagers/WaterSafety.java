@@ -14,12 +14,27 @@ public final class WaterSafety {
                 || !v.level().getBlockState(p.below()).isFaceSturdy(v.level(), p.below(), net.minecraft.core.Direction.UP)) return false;
         return v.level().noCollision(v, v.getBoundingBox().move(p.getX() + .5 - v.getX(), p.getY() - v.getY(), p.getZ() + .5 - v.getZ()));
     }
+    /**
+     * The dry block the villager stands on, or null. Uses the supporting block rather than the block under the
+     * villager's centre: on the edge of a one-block bank the centre can still be over the water.
+     */
+    static BlockPos footing(Villager v) {
+        if (!v.onGround() || v.isInWater() || v.isInLava()) return null;
+        var below = v.getOnPos();
+        var level = v.level();
+        if (!level.getFluidState(below).isEmpty() || !level.getFluidState(below.above()).isEmpty()
+                || !level.getBlockState(below).isFaceSturdy(level, below, net.minecraft.core.Direction.UP)) return null;
+        return below;
+    }
     public static boolean tick(Villager v) {
         var d = v.getData(KrcVillagers.COMPANION);
         v.getNavigation().setCanFloat(true);
         if (!v.isInWater() && !v.isInLava()) {
-            if (d.shore != null && v.onGround() && dry(v, v.blockPosition())) {
-                if (!v.level().getFluidState(d.guard).isEmpty()) Companions.setGuard(v);
+            // Landing anywhere dry ends the escape. Following the old path to the planned shore after a
+            // crowded exit pushed a villager off the bank and back across the water.
+            var footing = d.shore == null ? null : footing(v);
+            if (footing != null) {
+                if (!v.level().getFluidState(d.guard).isEmpty()) Companions.setGuard(v, footing.above());
                 d.shore = null;
                 v.getNavigation().stop();
                 v.getBrain().eraseMemory(net.minecraft.world.entity.ai.memory.MemoryModuleType.WALK_TARGET);

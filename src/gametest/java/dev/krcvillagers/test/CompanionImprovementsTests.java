@@ -180,10 +180,33 @@ public final class CompanionImprovementsTests {
         for (int i = 0; i < 30; i++) RangedCombat.tick(v, target);
         h.assertTrue(d.items.getStackInSlot(8).getCount() == 4 && v.getMainHandItem().getDamageValue() == 0, "friendly in firing line blocks shots"); h.succeed();
     }
-    @GameTest(template="arena",timeoutTicks=320)
-    public static void followGuardAndLifeVillagersEscapeDeepWater(GameTestHelper h) {
+    private static void deepPool(GameTestHelper h) {
         for (int x = 1; x <= 11; x++) for (int z = 1; z <= 11; z++) for (int y = 1; y <= 4; y++)
             h.setBlock(new BlockPos(x,y,z), x == 1 || x == 11 || z == 1 || z == 11 ? Blocks.STONE : Blocks.WATER);
+    }
+    @GameTest(template="arena",timeoutTicks=100)
+    public static void landingOnTheEdgeOfABankEndsTheEscape(GameTestHelper h) {
+        // A crowded exit can leave a villager on the edge of the one-block bank, its centre still over the water.
+        // If that does not count as ashore, the escape path to the far shore pulls it back across the pool.
+        deepPool(h);
+        var v = h.spawn(EntityType.VILLAGER, new net.minecraft.world.phys.Vec3(10.9, 5, 6.5)); own(v);
+        var d = v.getData(KrcVillagers.COMPANION);
+        d.mode = VillagerCompanionData.Mode.GUARD; d.policy = VillagerCompanionData.Policy.OFF;
+        h.onEachTick(() -> { if (v.isInWater()) h.fail("villager followed the old escape path back into the water"); });
+        h.runAfterDelay(5, () -> {
+            // The state a swimmer arrives with: guard post under water, escape planned to the far shore.
+            h.assertTrue(v.onGround() && !h.getLevel().getFluidState(v.blockPosition().below()).isEmpty(), "fixture stands on the edge over the water");
+            Companions.setGuard(v, h.absolutePos(new BlockPos(5,1,6))); d.shore = h.absolutePos(new BlockPos(1,5,6));
+        });
+        h.runAfterDelay(25, () -> {
+            h.assertTrue(d.shore == null && v.getNavigation().isDone(), "landing on the bank ended the escape");
+            h.assertTrue(d.guard.equals(h.absolutePos(new BlockPos(11,5,6))), "guard post moved onto the bank: " + d.guard);
+            h.succeed();
+        });
+    }
+    @GameTest(template="arena",timeoutTicks=320)
+    public static void followGuardAndLifeVillagersEscapeDeepWater(GameTestHelper h) {
+        deepPool(h);
         var swimmers = new java.util.ArrayList<Villager>(); int x = 4;
         for (var mode : VillagerCompanionData.Mode.values()) {
             var v = h.spawn(EntityType.VILLAGER, new BlockPos(x++,1,6)); own(v); var d = v.getData(KrcVillagers.COMPANION);
