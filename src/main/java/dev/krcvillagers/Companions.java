@@ -50,9 +50,10 @@ public final class Companions {
         CompanionEquipment.bind(v);
         setGuard(v); v.setPersistenceRequired(); Protocol.sync(v); return true;
     }
-    public static void setGuard(Villager v) {
+    public static void setGuard(Villager v) { setGuard(v,v.blockPosition()); }
+    public static void setGuard(Villager v,BlockPos post) {
         var d=v.getData(KrcVillagers.COMPANION);
-        d.guard=v.blockPosition(); d.guardDimension=v.level().dimension().location().toString();
+        d.guard=post.immutable(); d.guardDimension=v.level().dimension().location().toString();
     }
     public static void release(ServerPlayer p,Villager v) {
         if(!owns(p,v) || v.getData(KrcVillagers.COMPANION).downed) return;
