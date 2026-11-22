@@ -70,19 +70,19 @@
       }
     },
     {
-      "path": "libs/geckolib-neoforge-1.21.1-4.9.3.jar",
-      "sha256": "20a1995e4074f387ff549e2c57ea79dd7d41ee83c6afb9dd6a6e840e592d1c47",
+      "path": "libs/geckolib-neoforge-1.21.1-4.9.4.jar",
+      "sha256": "5f5d93386b6a660439a77c5cfda67b47a957864a3a6462a015bcc8402bfbb5b3",
       "modid": "geckolib",
-      "version": "4.9.3",
+      "version": "4.9.4",
       "license": "MIT",
       "project": "http://geckolib.com/",
-      "source_url": "https://modrinth.com/mod/8BmcQJ2H/version/Grwn5rUB",
-      "download_url": "https://cdn.modrinth.com/data/8BmcQJ2H/versions/Grwn5rUB/geckolib-neoforge-1.21.1-4.9.3.jar",
+      "source_url": "https://modrinth.com/mod/8BmcQJ2H/version/nxAPSFAR",
+      "download_url": "https://cdn.modrinth.com/data/8BmcQJ2H/versions/nxAPSFAR/geckolib-neoforge-1.21.1-4.9.4.jar",
       "update": {
         "provider": "modrinth",
         "project_id": "8BmcQJ2H",
-        "version_id": "Grwn5rUB",
-        "published_at": "2026-09-16T07:34:19.892008Z",
+        "version_id": "nxAPSFAR",
+        "published_at": "2026-11-22T10:04:18.477756Z",
         "channel": "release"
       }
     },
