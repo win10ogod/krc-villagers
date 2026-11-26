@@ -20,18 +20,18 @@
       }
     },
     {
-      "path": "generic_henshin-cf9173897.jar",
-      "sha256": "9a02bd32bf25afbbcc47ba14539bc22962547b882ecbf02eaef05ca3ce800532",
+      "path": "generic_henshin-cf9824459.jar",
+      "sha256": "3725dcb984b97c52b3aa543da7930d1e436b24946b91abb5d4c50e838dd26e55",
       "modid": "generic_henshin",
-      "version": "0.1.139",
+      "version": "0.1.140-Z016",
       "license": "WTFPL",
       "project": "https://www.curseforge.com/minecraft/mc-mods/generic-henshin",
-      "source_url": "https://www.curseforge.com/minecraft/mc-mods/generic-henshin/files/9173897",
-      "download_url": "https://edge.forgecdn.net/files/9173/897/generic_henshin-0.1.139-littlejoys-v634-kuuga-kick-magicfix-damagevfx-ee-explosion-global.jar",
+      "source_url": "https://www.curseforge.com/minecraft/mc-mods/generic-henshin/files/9824459",
+      "download_url": "https://edge.forgecdn.net/files/9824/459/generic_henshin-Z016.jar",
       "update": {
         "provider": "curseforge",
         "project_id": 1668781,
-        "file_id": 9173897,
+        "file_id": 9824459,
         "channel": "release"
       }
     },
